@@ -75,262 +75,537 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 @keyframes reveal { 0%{opacity:.35;transform:scale(.97);filter:blur(4px)} 100%{opacity:1;transform:scale(1);filter:blur(0)} }
 @keyframes glow { 0%,100%{box-shadow:0 0 10px #e17db622} 50%{box-shadow:0 0 28px #e17db677} }
 .turn-status { animation:glow 3s ease-in-out infinite; }
+@keyframes wheelGlow { 0%,100%{filter:drop-shadow(0 0 8px #f09bcc55)} 50%{filter:drop-shadow(0 0 25px #f09bcc)} }
+#turnWheel { animation:wheelGlow 2.8s ease-in-out infinite; }
+.challenge.reveal { animation:reveal .55s ease both, glow 2.4s ease-in-out infinite; }
+.secret-box { display:grid; gap:9px; margin-top:12px; }
+.secret-box input { width:100%; min-width:0; padding:12px; border-radius:11px; border:1px solid #64445f; background:#241728; color:#fff5fb; font:inherit; }
+.secret-list { display:grid; gap:7px; margin-top:8px; }
+.secret-item { border:1px solid #70405f; background:#241728; padding:10px; border-radius:10px; color:#ffe0f0; font-size:.88rem; }
 @media (min-width: 520px) { #app { padding-left: 24px; padding-right: 24px; } .categories { grid-template-columns: repeat(3, minmax(0, 1fr)); } .cat { min-height: 78px; } }
-@media (prefers-color-scheme: light) { /* Keep the app's intentional dark, intimate palette in both host modes. */ }
+@media (prefers-color-scheme: light) { /* Mantiene la paleta oscura intencionada. */ }
 </style>
 </head>
 <body>
 <main id="app">
 <div class="shell">
-  <header class="hero">
-    <div class="eyebrow">Juego para dos · solo con consentimiento</div>
-    <h1>RULETA <span style="color:#f09bcc">XXX XXL</span></h1>
-    <p class="subtitle">Elegid categoría, cambiad de turno y dejad que salga el siguiente reto.</p>
-    <div class="pill">127 retos · sin repetir hasta agotarlos</div>
-  </header>
-  <section class="setup-screen" id="setupScreen">
-  <section class="panel">
-    <p class="section-label">Configurad a los jugadores</p>
-    <div class="setup-grid">
-      <div class="setup-field"><label for="nameA">Nombre de la persona 1</label><input id="nameA" maxlength="24" value="Persona A" autocomplete="off"></div>
-      <div class="setup-field"><label for="sexA">Sexo</label><select id="sexA"><option value="Mujer">Mujer</option><option value="Hombre">Hombre</option><option value="No binario">No binario</option><option value="Prefiero no decirlo">Prefiero no decirlo</option></select></div>
-      <div class="setup-field"><label for="nameB">Nombre de la persona 2</label><input id="nameB" maxlength="24" value="Persona B" autocomplete="off"></div>
-      <div class="setup-field"><label for="sexB">Sexo</label><select id="sexB"><option value="Hombre">Hombre</option><option value="Mujer">Mujer</option><option value="No binario">No binario</option><option value="Prefiero no decirlo">Prefiero no decirlo</option></select></div>
-    </div>
-    <button class="setup-save" id="savePlayers">Aceptar y continuar</button>
-  </section>
-  </section>
-  <div class="game-screen" id="gameScreen" hidden>
-  <section class="panel">
-    <p class="section-label">Ruleta de turno</p>
-    <div class="turn-status" aria-live="polite"><small>Le toca a</small><strong id="turnName">Persona A</strong></div>
-    <div class="wheel-wrap">
-      <div class="wheel-pointer">▼</div>
-      <canvas id="turnWheel" width="560" height="560" aria-label="Ruleta con los nombres de los dos jugadores"></canvas>
-      <button class="wheel-button" id="spinWheel">🎡 Girar ruleta</button>
-    </div>
-  </section>
-  <section class="panel">
-    <p class="section-label">Elige el nivel</p>
-    <div class="categories" id="categories">
-      <button class="cat active" data-cat="Todo mezclado"><strong>🎲 Todo mezclado</strong><span>Un poco de todo</span></button>
-      <button class="cat" data-cat="Suave"><strong>🌶️ Suave</strong><span>Calentamiento</span></button>
-      <button class="cat" data-cat="Picante"><strong>🔥 Picante</strong><span>Sube la temperatura</span></button>
-      <button class="cat" data-cat="Intenso"><strong>😈 Intenso</strong><span>Más atrevido</span></button>
-      <button class="cat" data-cat="Sin vergüenza"><strong>💋 Sin vergüenza</strong><span>Atrevimiento y juego</span></button>
-      <button class="cat" data-cat="Posiciones"><strong>🛏️ Posiciones</strong><span>Ideas para probar</span></button>
-      <button class="cat" data-cat="Muy atrevido"><strong>🔥 Muy atrevido</strong><span>Retos íntimos para adultos</span></button>
-    </div>
-  </section>
-  <section class="panel">
-    <p class="section-label">Modo de partida · intensidad progresiva</p>
-    <div class="mode-grid" id="modeGrid">
-      <button class="mode-btn active" data-mode="Calentamiento">💗 Calentamiento</button>
-      <button class="mode-btn" data-mode="Pasión">🔥 Pasión</button>
-      <button class="mode-btn" data-mode="Sin límites">😈 Sin límites</button>
-    </div>
-    <p class="hint" id="modeHint">Empieza suave y subid de nivel solo si ambos queréis.</p>
-  </section>
-  <section class="panel challenge" id="challengeBox" aria-live="polite">
-    <div class="tag" id="challengeTag">Todo mezclado · Tu reto</div>
-    <h2 id="challengeText">Pulsa «Sacar reto» para empezar la partida.</h2>
-    <p class="hint" id="challengeHint">Podéis pasar cualquier reto sin dar explicaciones.</p>
-    <div class="counter" id="counter">127 retos disponibles</div>
-  </section>
-  <section class="actions">
-    <button class="primary" id="draw">🎲 Sacar reto</button>
-    <button class="secondary-btn" id="pass">⏭ Pasar reto</button>
-    <button class="secondary-btn" id="switch">🔄 Cambiar turno</button>
-    <button class="secondary-btn" id="reset">↻ Reiniciar partida</button>
-  </section>
-  <section class="panel">
-    <p class="section-label">Sorpresas para romper el hielo</p>
-    <div class="feature-grid">
-      <button class="feature-btn" id="surprise">🎁 Carta sorpresa</button>
-      <button class="feature-btn" id="truthDare">🎭 Verdad o reto</button>
-      <button class="feature-btn" id="secretReveal">🤫 Deseo secreto</button>
-      <button class="feature-btn" id="nextLevel">📈 Subir intensidad</button>
-    </div>
-    <div class="timer-line"><label for="timerMinutes">Temporizador</label><input id="timerMinutes" type="number" min="1" max="30" value="2"><span>min</span><span class="timer-readout" id="timerReadout">02:00</span><button class="secondary-btn" id="timerStart">▶ Iniciar</button><button class="secondary-btn" id="timerStop">■ Parar</button></div>
-  </section>
-  <p class="footer">Regla de oro: consentimiento mutuo, comunicación y libertad para parar o cambiar cualquier reto. No hay penalización por pasar.</p>
-  </div>
+<header class="hero">
+<div class="eyebrow">Juego para dos · solo con consentimiento</div>
+<h1>RULETA <span style="color:#f09bcc">XXX XXL</span></h1>
+<p class="subtitle">Elegid categoría, cambiad de turno y dejad que salga el siguiente reto.</p>
+<div class="pill">127 retos · sin repetir hasta agotarlos</div>
+</header>
+
+<section class="setup-screen" id="setupScreen">
+<section class="panel">
+<p class="section-label">Configurad a los jugadores</p>
+<div class="setup-grid">
+<div class="setup-field"><label for="nameA">Nombre de la persona 1</label><input id="nameA" maxlength="24" value="Persona A" autocomplete="off"></div>
+<div class="setup-field"><label for="sexA">Sexo</label><select id="sexA"><option>Mujer</option><option>Hombre</option><option>No binario</option><option>Prefiero no decirlo</option></select></div>
+<div class="setup-field"><label for="nameB">Nombre de la persona 2</label><input id="nameB" maxlength="24" value="Persona B" autocomplete="off"></div>
+<div class="setup-field"><label for="sexB">Sexo</label><select id="sexB"><option>Hombre</option><option>Mujer</option><option>No binario</option><option>Prefiero no decirlo</option></select></div>
+</div>
+<button class="setup-save" id="savePlayers">Aceptar y continuar</button>
+</section>
+</section>
+
+<div class="game-screen" id="gameScreen" hidden>
+<section class="panel">
+<p class="section-label">Ruleta de turno</p>
+<div class="turn-status" aria-live="polite"><small>Le toca a</small><strong id="turnName">Persona A</strong></div>
+<div class="wheel-wrap">
+<div class="wheel-pointer">▼</div>
+<canvas id="turnWheel" width="560" height="560" aria-label="Ruleta con los nombres de los dos jugadores"></canvas>
+<button class="wheel-button" id="spinWheel">🎡 Girar ruleta</button>
+</div>
+</section>
+
+<section class="panel">
+<p class="section-label">Elige el nivel</p>
+<div class="categories" id="categories">
+<button class="cat active" data-cat="Todo mezclado"><strong>🎲 Todo mezclado</strong><span>Un poco de todo</span></button>
+<button class="cat" data-cat="Suave"><strong>🌶️ Suave</strong><span>Calentamiento</span></button>
+<button class="cat" data-cat="Picante"><strong>🔥 Picante</strong><span>Sube la temperatura</span></button>
+<button class="cat" data-cat="Intenso"><strong>😈 Intenso</strong><span>Más atrevido</span></button>
+<button class="cat" data-cat="Sin vergüenza"><strong>💋 Sin vergüenza</strong><span>Atrevimiento y juego</span></button>
+<button class="cat" data-cat="Posiciones"><strong>🛏️ Posiciones</strong><span>Ideas para probar</span></button>
+<button class="cat" data-cat="Muy atrevido"><strong>🔥 Muy atrevido</strong><span>Retos íntimos para adultos</span></button>
+</div>
+</section>
+
+<section class="panel">
+<p class="section-label">Modo de partida · intensidad progresiva</p>
+<div class="mode-grid" id="modeGrid">
+<button class="mode-btn active" data-mode="Calentamiento">💗 Calentamiento</button>
+<button class="mode-btn" data-mode="Pasión">🔥 Pasión</button>
+<button class="mode-btn" data-mode="Sin límites">😈 Sin límites</button>
+</div>
+<p class="hint" id="modeHint">Empieza suave y subid de nivel solo si ambos queréis.</p>
+</section>
+
+<section class="panel challenge" id="challengeBox" aria-live="polite">
+<div class="tag" id="challengeTag">Todo mezclado · Tu reto</div>
+<h2 id="challengeText">Pulsa «Sacar reto» para empezar la partida.</h2>
+<p class="hint" id="challengeHint">Podéis pasar cualquier reto sin dar explicaciones.</p>
+<div class="counter" id="counter">127 retos disponibles</div>
+</section>
+
+<section class="actions">
+<button class="primary" id="draw">🎲 Sacar reto</button>
+<button class="secondary-btn" id="pass">⏭ Pasar reto</button>
+<button class="secondary-btn" id="switch">🔄 Cambiar turno</button>
+<button class="secondary-btn" id="reset">↻ Reiniciar partida</button>
+</section>
+
+<section class="panel">
+<p class="section-label">Sorpresas para romper el hielo</p>
+<div class="feature-grid">
+<button class="feature-btn" id="surprise">🎁 Carta sorpresa</button>
+<button class="feature-btn" id="truthDare">🎭 Verdad o reto</button>
+<button class="feature-btn" id="secretReveal">🤫 Deseo secreto</button>
+<button class="feature-btn" id="nextLevel">📈 Subir intensidad</button>
+</div>
+
+<div class="secret-box">
+<label for="secretA">Deseo secreto de <span id="secretNameA">persona 1</span></label>
+<input id="secretA" maxlength="180" placeholder="Escribe algo que te gustaría probar...">
+<label for="secretB">Deseo secreto de <span id="secretNameB">persona 2</span></label>
+<input id="secretB" maxlength="180" placeholder="Escribe algo que te gustaría probar...">
+<button class="feature-btn" id="revealSecrets">💌 Revelar los dos deseos</button>
+<div class="secret-list" id="secretResults" aria-live="polite"></div>
+</div>
+
+<div class="timer-line">
+<label for="timerMinutes">Cuenta atrás</label>
+<select id="timerMinutes" style="padding:9px;border-radius:9px;background:#241728;color:white;border:1px solid #64445f">
+<option value="30">30 segundos</option>
+<option value="60">60 segundos</option>
+<option value="90">90 segundos</option>
+</select>
+<span class="timer-readout" id="timerReadout">00:30</span>
+<button class="secondary-btn" id="timerStart">▶ Iniciar</button>
+<button class="secondary-btn" id="timerStop">■ Parar</button>
+</div>
+</section>
+
+<p class="footer">Regla de oro: consentimiento mutuo, comunicación y libertad para parar o cambiar cualquier reto. No hay penalización por pasar.</p>
+</div>
 </div>
 </main>
+
 <script>
 const challenges = {
-  "Suave": [
-    "Besa a tu pareja durante 20 segundos, sin prisa.", "Susurra al oído una cosa que te atrae de su cuerpo.", "Dale un masaje de hombros durante un minuto.", "Besa tres zonas que tu pareja elija.", "Mírense a los ojos durante 30 segundos y luego dense un beso.", "Acaricia suavemente las manos y los brazos de tu pareja.", "Deja que tu pareja elija dónde recibir un beso.", "Dale un abrazo largo y termina con un beso.", "Susurra una fantasía romántica o sensual que te resulte cómoda compartir.", "Besa lentamente la frente, la mejilla y los labios.", "Hazle un cumplido atrevido pero sincero.", "Acaricia la espalda de tu pareja por encima de la ropa.", "Elige una canción y bailen juntos durante un minuto.", "Dale cinco besos, cada uno en un lugar distinto que acepte.", "Pregunta qué tipo de caricia le gusta más y pruébala.", "Haz un masaje de manos usando crema si tenéis.", "Acércate y dale un beso sorpresa, si le apetece.", "Deja que tu pareja guíe tu mano hacia una caricia que le guste.", "Dile al oído qué te gustaría hacer después, sin presión.", "Inventen una palabra secreta para decir ‘quiero más’ durante la partida."
-  ],
-  "Picante": [
-    "Besa a tu pareja durante 45 segundos sin hablar.", "Deja que tu pareja elija una prenda que puedas quitarte, si quieres.", "Dale un beso en el cuello si esa zona le gusta.", "Describe en voz baja un beso perfecto.", "Haz un baile sensual de 30 segundos.", "Deja que tu pareja te dé tres besos donde tú elijas.", "Susurra una idea atrevida que ambos puedan aceptar o rechazar.", "Bésense mientras se abrazan durante un minuto.", "Elige una zona no íntima y pide permiso para acariciarla lentamente.", "Deja que tu pareja elija una canción para un baile pegado.", "Dale un masaje en la espalda durante dos minutos.", "Di tres cosas que te resultan irresistibles de tu pareja.", "Dale un beso largo y luego deja que tu pareja decida si quiere otro.", "Elijan una prenda o accesorio para intercambiar durante una ronda.", "Haz que tu pareja elija entre beso, masaje o baile.", "Susurra una invitación sensual; la otra persona puede aceptarla o cambiarla.", "Acaricia la nuca de tu pareja durante 20 segundos, si le gusta.", "Inventen un saludo secreto que termine en un beso.", "Dale a tu pareja un cumplido muy específico sobre lo que te atrae.", "Durante 30 segundos, deja que tu pareja dirija el ritmo de los besos."
-  ],
-  "Intenso": [
-    "Dense un beso largo y pausado durante un minuto, si ambos quieren.", "Deja que tu pareja guíe una sesión de caricias por encima de la ropa.", "Pregúntale qué le gustaría explorar hoy y escucha sin juzgar.", "Elijan una fantasía suave que les apetezca representar durante un minuto.", "Hagan una pausa de 30 segundos para decir qué les gusta y qué prefieren evitar.", "Deja que tu pareja elija entre masaje, besos o baile sensual.", "Con permiso, cubre los ojos de tu pareja y dale un beso en la mano o la mejilla.", "Dile a tu pareja una petición atrevida que pueda aceptar, modificar o rechazar.", "Dense besos en turnos: una persona elige el lugar y la otra el ritmo.", "Hagan un masaje de espalda de tres minutos por turnos.", "Representen una escena de seducción inventada por ambos.", "Pide permiso para explorar una nueva forma de besar y deja que tu pareja marque el ritmo.", "Elijan una palabra para bajar la intensidad y otra para parar.", "Cada persona comparte una cosa que quiere probar y una que no.", "Deja que tu pareja prepare el ambiente: luz, música o postura cómoda.", "Dile a tu pareja qué gesto suyo te pone nervioso/a de una forma agradable.", "Hagan una ronda de besos en la que cada persona pueda decir ‘más lento’ o ‘así está bien’.", "Elijan un reto de una categoría más suave y háganlo con más calma.", "Pide un beso de la forma más seductora que se te ocurra.", "Terminen esta ronda preguntando: ‘¿Quieres continuar, cambiar o descansar?’"
-  ],
-  "Sin vergüenza": [
-    "Confiesa una fantasía sensual que te sientas cómodo/a compartiendo.", "Haz una pregunta atrevida que la otra persona pueda pasar.", "Describe qué tipo de beso te gusta más y demuestra uno, si ambos quieren.", "Deja que tu pareja elija una pose para una foto privada no explícita, o pasad.", "Di una frase de seducción improvisada sin reírte.", "Elige entre un beso largo, un masaje o un baile sensual.", "Cuenta cuál fue tu primera impresión de tu pareja en tono pícaro.", "Propón un juego de roles sencillo y negocien los límites antes de empezar.", "Deja que tu pareja elija una prenda o accesorio para tu próximo turno.", "Menciona una cosa nueva que te gustaría probar juntos, sin obligación.", "Haz una mirada seductora durante 15 segundos.", "Pide un beso como si estuvieras en una película dramática.", "Cada persona dice una palabra que describa el ambiente que desea.", "Imita tu propia versión de una escena de seducción de película.", "Deja que tu pareja te haga una pregunta picante; puedes pasarla.", "Inventen un apodo coqueto para esta partida.", "Haz una propuesta atrevida en forma de pregunta, nunca de exigencia.", "Elige un reto anterior y deja que tu pareja cambie una regla.", "Dile a tu pareja qué detalle suyo te distrae cuando quieres concentrarte.", "Hagan una ronda de ‘verdad o reto’ con derecho a pasar.", "Elijan juntos una fantasía que solo quieran comentar, sin llevarla a cabo.", "Haz una declaración de deseo de una sola frase, respetando los límites acordados.", "Deja que tu pareja elija la próxima categoría.", "Intercambien los papeles: quien proponía ahora elige si acepta o pasa.", "Decidan en equipo qué reto les ha gustado más hasta ahora."
-  ],
-  "Muy atrevido": [
-    "Acércate a su oído y susúrrale, con todo detalle, qué te gustaría hacer en vuestra próxima cita íntima.",
-    "Dale un beso lento en el cuello y pregúntale si quiere que sigas bajando con besos.",
-    "Hazle un striptease privado de un minuto: sin prisa y dejando que tu pareja marque el ritmo.",
-    "Dile tres cosas muy atrevidas que te gustaría que hicierais juntos esta noche.",
-    "Bésale por el vientre lentamente y deja que te guíe hacia donde más le guste.",
-    "Susúrrale una fantasía al oído y pídele que te cuente qué parte le ha gustado más.",
-    "Propón un masaje sensual de cuerpo, acordando antes qué zonas sí y cuáles no.",
-    "Deja que tu pareja elija una prenda que te apetezca quitarte tú mismo/a, si te sientes cómodo/a.",
-    "Dale un beso largo y pregúntale qué le gustaría que pasara después.",
-    "Confiesa cuál es el momento del día en que más ganas tienes de estar a solas con tu pareja.",
-    "Proponed una escena de seducción: una persona conquista a la otra usando solo palabras y miradas.",
-    "Pregúntale si le gustaría explorar el sexo oral; hablad de límites, higiene y protección antes de decidir.",
-    "Dile al oído una petición íntima que nunca te hayas atrevido a hacer, sin presión para aceptarla.",
-    "Deja que tu pareja te indique cómo quiere recibir un beso lento y sigue sus indicaciones.",
-    "Bailad muy pegados durante una canción; al terminar, quien quiera puede pedir un beso.",
-    "Cada uno cuenta una fantasía que le excite y elige si quiere dejarla en palabras o explorarla juntos.",
-    "Pregúntale qué tipo de caricia le enciende más y escucha su respuesta antes de probarla.",
-    "Dale a elegir: un beso largo, un masaje sensual o que le susurres una fantasía.",
-    "Preparad una ronda de besos por el cuerpo, siguiendo únicamente las zonas que ambos indiquéis.",
-    "Decid en voz alta qué os apetece hacer después del juego y qué límites queréis mantener.",
-    "Proponed probar una experiencia íntima nueva; primero hablad de deseos, límites y protección.",
-    "Mírale a los ojos y dile, sin bromear, qué es lo que más te atrae cuando estáis a solas."
-  ],
-  "Posiciones": [
-    "Prueben un beso sentados frente a frente, con las manos enlazadas.", "Si ambos están cómodos, prueben un abrazo de pie con un beso lento.", "Siéntense uno junto al otro y alternen caricias en las manos.", "Prueben una postura cómoda de lado para abrazarse y besarse.", "Una persona se sienta y la otra se acerca para un abrazo, si ambos quieren.", "Prueben un beso frente a frente, sentados en el borde de la cama.", "Túmbense de lado y dense un beso suave.", "Prueben un abrazo por detrás y pregunten si resulta cómodo.", "Siéntense cara a cara y hagan un masaje de hombros por turnos.", "Prueben una postura cómoda de abrazo con las piernas relajadas.", "Dense un beso de pie junto a una pared, solo si es cómodo y estable.", "Prueben un abrazo sentado en el sofá con una manta compartida.", "Una persona se recuesta con apoyo de almohadas y la otra le da un beso en la frente.", "Prueben una postura de abrazo lateral mientras escuchan una canción.", "Siéntense frente a frente y dejen que cada uno guíe una mano, con permiso.", "Prueben un beso inclinando suavemente la cabeza hacia lados opuestos.", "Elijan la postura más cómoda para darse un masaje de espalda.", "Prueben abrazarse tumbados boca arriba, mirando al techo, y entrelazar las manos.", "Busquen una postura en la que ambos puedan hablar y cambiar de idea fácilmente.", "Inventen una postura de abrazo propia y pónganle un nombre divertido."
-  ]
+"Suave": [
+"Besa a tu pareja durante 20 segundos, sin prisa.",
+"Susurra al oído una cosa que te atrae de su cuerpo.",
+"Dale un masaje de hombros durante un minuto.",
+"Besa tres zonas que tu pareja elija.",
+"Mírense a los ojos durante 30 segundos y luego dense un beso.",
+"Acaricia suavemente las manos y los brazos de tu pareja.",
+"Deja que tu pareja elija dónde recibir un beso.",
+"Dale un abrazo largo y termina con un beso.",
+"Susurra una fantasía romántica o sensual que te resulte cómoda compartir.",
+"Besa lentamente la frente, la mejilla y los labios.",
+"Hazle un cumplido atrevido pero sincero.",
+"Acaricia la espalda de tu pareja por encima de la ropa.",
+"Elige una canción y bailen juntos durante un minuto.",
+"Dale cinco besos, cada uno en un lugar distinto que acepte.",
+"Pregunta qué tipo de caricia le gusta más y pruébala.",
+"Haz un masaje de manos usando crema si tenéis.",
+"Acércate y dale un beso sorpresa, si le apetece.",
+"Deja que tu pareja guíe tu mano hacia una caricia que le guste.",
+"Dile al oído qué te gustaría hacer después, sin presión.",
+"Inventen una palabra secreta para decir ‘quiero más’ durante la partida."
+],
+"Picante": [
+"Besa a tu pareja durante 45 segundos sin hablar.",
+"Deja que tu pareja elija una prenda que puedas quitarte, si quieres.",
+"Dale un beso en el cuello si esa zona le gusta.",
+"Describe en voz baja un beso perfecto.",
+"Haz un baile sensual de 30 segundos.",
+"Deja que tu pareja te dé tres besos donde tú elijas.",
+"Susurra una idea atrevida que ambos puedan aceptar o rechazar.",
+"Bésense mientras se abrazan durante un minuto.",
+"Elige una zona no íntima y pide permiso para acariciarla lentamente.",
+"Deja que tu pareja elija una canción para un baile pegado.",
+"Dale un masaje en la espalda durante dos minutos.",
+"Di tres cosas que te resultan irresistibles de tu pareja.",
+"Dale un beso largo y luego deja que tu pareja decida si quiere otro.",
+"Elijan una prenda o accesorio para intercambiar durante una ronda.",
+"Haz que tu pareja elija entre beso, masaje o baile.",
+"Susurra una invitación sensual; la otra persona puede aceptarla o cambiarla.",
+"Acaricia la nuca de tu pareja durante 20 segundos, si le gusta.",
+"Inventen un saludo secreto que termine en un beso.",
+"Dale a tu pareja un cumplido muy específico sobre lo que te atrae.",
+"Durante 30 segundos, deja que tu pareja dirija el ritmo de los besos."
+],
+"Intenso": [
+"Dense un beso largo y pausado durante un minuto, si ambos quieren.",
+"Deja que tu pareja guíe una sesión de caricias por encima de la ropa.",
+"Pregúntale qué le gustaría explorar hoy y escucha sin juzgar.",
+"Elijan una fantasía suave que les apetezca representar durante un minuto.",
+"Hagan una pausa de 30 segundos para decir qué les gusta y qué prefieren evitar.",
+"Deja que tu pareja elija entre masaje, besos o baile sensual.",
+"Con permiso, cubre los ojos de tu pareja y dale un beso en la mano o la mejilla.",
+"Dile a tu pareja una petición atrevida que pueda aceptar, modificar o rechazar.",
+"Dense besos en turnos: una persona elige el lugar y la otra el ritmo.",
+"Hagan un masaje de espalda de tres minutos por turnos.",
+"Representen una escena de seducción inventada por ambos.",
+"Pide permiso para explorar una nueva forma de besar y deja que tu pareja marque el ritmo.",
+"Elijan una palabra para bajar la intensidad y otra para parar.",
+"Cada persona comparte una cosa que quiere probar y una que no.",
+"Deja que tu pareja prepare el ambiente: luz, música o postura cómoda.",
+"Dile a tu pareja qué gesto suyo te pone nervioso/a de una forma agradable.",
+"Hagan una ronda de besos en la que cada persona pueda decir ‘más lento’ o ‘así está bien’.",
+"Elijan un reto de una categoría más suave y háganlo con más calma.",
+"Pide un beso de la forma más seductora que se te ocurra.",
+"Terminen esta ronda preguntando: ‘¿Quieres continuar, cambiar o descansar?’"
+],
+"Sin vergüenza": [
+"Confiesa una fantasía sensual que te sientas cómodo/a compartiendo.",
+"Haz una pregunta atrevida que la otra persona pueda pasar.",
+"Describe qué tipo de beso te gusta más y demuestra uno, si ambos quieren.",
+"Deja que tu pareja elija una pose para una foto privada no explícita, o pasad.",
+"Di una frase de seducción improvisada sin reírte.",
+"Elige entre un beso largo, un masaje o un baile sensual.",
+"Cuenta cuál fue tu primera impresión de tu pareja en tono pícaro.",
+"Propón un juego de roles sencillo y negocien los límites antes de empezar.",
+"Deja que tu pareja elija una prenda o accesorio para tu próximo turno.",
+"Menciona una cosa nueva que te gustaría probar juntos, sin obligación.",
+"Haz una mirada seductora durante 15 segundos.",
+"Pide un beso como si estuvieras en una película dramática.",
+"Cada persona dice una palabra que describa el ambiente que desea.",
+"Imita tu propia versión de una escena de seducción de película.",
+"Deja que tu pareja te haga una pregunta picante; puedes pasarla.",
+"Inventen un apodo coqueto para esta partida.",
+"Haz una propuesta atrevida en forma de pregunta, nunca de exigencia.",
+"Elige un reto anterior y deja que tu pareja cambie una regla.",
+"Dile a tu pareja qué detalle suyo te distrae cuando quieres concentrarte.",
+"Hagan una ronda de ‘verdad o reto’ con derecho a pasar.",
+"Elijan juntos una fantasía que solo quieran comentar, sin llevarla a cabo.",
+"Haz una declaración de deseo de una sola frase, respetando los límites acordados.",
+"Deja que tu pareja elija la próxima categoría.",
+"Intercambien los papeles: quien proponía ahora elige si acepta o pasa.",
+"Decidan en equipo qué reto les ha gustado más hasta ahora."
+],
+"Muy atrevido": [
+"Acércate a su oído y susúrrale qué te gustaría hacer en vuestra próxima cita íntima.",
+"Dale un beso lento en el cuello y pregúntale si quiere que sigas.",
+"Hazle un baile sensual privado de un minuto, dejando que tu pareja marque el ritmo.",
+"Dile tres cosas atrevidas que te gustaría que hicierais juntos.",
+"Bésale por el vientre lentamente y deja que te guíe.",
+"Susúrrale una fantasía al oído y pídele que te cuente qué parte le ha gustado más.",
+"Proponed un masaje sensual de cuerpo, acordando antes qué zonas sí y cuáles no.",
+"Deja que tu pareja elija una prenda que te apetezca quitarte tú mismo/a, si te sientes cómodo/a.",
+"Dale un beso largo y pregúntale qué le gustaría que pasara después.",
+"Confiesa cuál es el momento del día en que más ganas tienes de estar a solas con tu pareja.",
+"Proponed una escena de seducción: una persona conquista a la otra usando solo palabras y miradas.",
+"Pregúntale si le gustaría explorar una práctica íntima; hablad de límites y protección antes de decidir.",
+"Dile al oído una petición íntima que nunca te hayas atrevido a hacer, sin presión para aceptarla.",
+"Deja que tu pareja te indique cómo quiere recibir un beso lento y sigue sus indicaciones.",
+"Bailad muy pegados durante una canción; al terminar, quien quiera puede pedir un beso.",
+"Cada uno cuenta una fantasía que le excite y elige si quiere dejarla en palabras o explorarla juntos.",
+"Pregúntale qué tipo de caricia le gusta más y escucha antes de probarla.",
+"Dale a elegir: un beso largo, un masaje sensual o que le susurres una fantasía.",
+"Preparad una ronda de besos por el cuerpo, siguiendo únicamente las zonas que ambos indiquéis.",
+"Decid en voz alta qué os apetece hacer después del juego y qué límites queréis mantener.",
+"Proponed probar una experiencia íntima nueva; primero hablad de deseos, límites y protección.",
+"Mírale a los ojos y dile qué es lo que más te atrae cuando estáis a solas."
+],
+"Posiciones": [
+"Prueben un beso sentados frente a frente, con las manos enlazadas.",
+"Si ambos están cómodos, prueben un abrazo de pie con un beso lento.",
+"Siéntense uno junto al otro y alternen caricias en las manos.",
+"Prueben una postura cómoda de lado para abrazarse y besarse.",
+"Una persona se sienta y la otra se acerca para un abrazo, si ambos quieren.",
+"Prueben un beso frente a frente, sentados en el borde de la cama.",
+"Túmbense de lado y dense un beso suave.",
+"Prueben un abrazo por detrás y pregunten si resulta cómodo.",
+"Siéntense cara a cara y hagan un masaje de hombros por turnos.",
+"Prueben una postura cómoda de abrazo con las piernas relajadas.",
+"Dense un beso de pie junto a una pared, solo si es cómodo y estable.",
+"Prueben un abrazo sentado en el sofá con una manta compartida.",
+"Una persona se recuesta con apoyo de almohadas y la otra le da un beso en la frente.",
+"Prueben una postura de abrazo lateral mientras escuchan una canción.",
+"Siéntense frente a frente y dejen que cada uno guíe una mano, con permiso.",
+"Prueben un beso inclinando suavemente la cabeza hacia lados opuestos.",
+"Elijan la postura más cómoda para darse un masaje de espalda.",
+"Prueben abrazarse tumbados boca arriba, mirando al techo, y entrelazar las manos.",
+"Busquen una postura en la que ambos puedan hablar y cambiar de idea fácilmente.",
+"Inventen una postura de abrazo propia y pónganle un nombre divertido."
+]
 };
+
 const all = Object.entries(challenges).flatMap(([cat, items]) => items.map(text => ({cat, text})));
 let category = 'Todo mezclado';
 let player = 'A';
-const players = { A: {name:'Persona A', sex:'Mujer'}, B: {name:'Persona B', sex:'Hombre'} };
+const players = {
+  A: {name:'Persona A', sex:'Mujer'},
+  B: {name:'Persona B', sex:'Hombre'}
+};
 let used = new Set();
 let current = null;
 let wheelRotation = 0;
 let spinning = false;
 let mode = 'Calentamiento';
 let timerInterval = null;
-let timerSeconds = 120;
-let secretPending = false;
+let timerSeconds = 30;
+let completedRounds = 0;
+let lastMilestone = 0;
+
 const $ = id => document.getElementById(id);
-function pool() { return all.filter(x => (category === 'Todo mezclado' || x.cat === category) && !used.has(x.cat + '|' + x.text)); }
+
+function pool() {
+  return all.filter(x =>
+    (category === 'Todo mezclado' || x.cat === category) &&
+    !used.has(x.cat + '|' + x.text)
+  );
+}
+
 function updateCounter() {
   const remaining = pool().length;
-  $('counter').textContent = remaining ? `${remaining} reto${remaining === 1 ? '' : 's'} disponible${remaining === 1 ? '' : 's'} en esta categoría` : '¡Categoría agotada! Reinicia para volver a jugar.';
+  $('counter').textContent = remaining
+    ? `${remaining} reto${remaining === 1 ? '' : 's'} disponible${remaining === 1 ? '' : 's'} en esta categoría`
+    : '¡Categoría agotada! Reinicia para volver a jugar.';
   $('draw').disabled = remaining === 0;
 }
+
 function draw() {
   const choices = pool();
-  if (!choices.length) { updateCounter(); return; }
+  if (!choices.length) {
+    updateCounter();
+    return;
+  }
+
   current = choices[Math.floor(Math.random() * choices.length)];
   used.add(current.cat + '|' + current.text);
+
   $('challengeTag').textContent = `${category} · Turno de ${players[player].name}`;
   $('challengeText').textContent = current.text;
   $('challengeHint').textContent = '¿Os apetece? Podéis aceptar, adaptar el reto o pasar sin dar explicaciones.';
-  $('challengeBox')?.classList.remove('reveal');
-  void $('challengeBox')?.offsetWidth;
-  $('challengeBox')?.classList.add('reveal');
+
+  $('challengeBox').classList.remove('reveal');
+  void $('challengeBox').offsetWidth;
+  $('challengeBox').classList.add('reveal');
+
   updateCounter();
+  completedRounds++;
+  checkProgress();
 }
+
 function updatePlayers() {
   players.A.name = $('nameA').value.trim() || 'Persona A';
   players.A.sex = $('sexA').value;
   players.B.name = $('nameB').value.trim() || 'Persona B';
   players.B.sex = $('sexB').value;
+
   $('turnName').textContent = `${players[player].name} · ${players[player].sex}`;
-  if (current) $('challengeTag').textContent = `${category} · Turno de ${players[player].name}`;
+  $('secretNameA').textContent = players.A.name;
+  $('secretNameB').textContent = players.B.name;
+
+  if (current) {
+    $('challengeTag').textContent = `${category} · Turno de ${players[player].name}`;
+  }
   drawWheel();
 }
+
 function drawWheel() {
   const canvas = $('turnWheel');
-  if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const cx = 280, cy = 280, radius = 260, slices = 12;
   const colors = ['#8e245f','#45233f'];
+
   ctx.clearRect(0,0,560,560);
-  ctx.save(); ctx.translate(cx,cy); ctx.rotate(wheelRotation);
+  ctx.save();
+  ctx.translate(cx,cy);
+  ctx.rotate(wheelRotation);
+
   for (let i=0;i<slices;i++) {
     const start = -Math.PI/2 + i*2*Math.PI/slices;
     const end = start + 2*Math.PI/slices;
-    ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,radius,start,end); ctx.closePath();
-    ctx.fillStyle = colors[i%2]; ctx.fill(); ctx.strokeStyle = '#f5c3df'; ctx.lineWidth = 3; ctx.stroke();
-    ctx.save(); ctx.rotate(start + Math.PI/slices); ctx.textAlign='right'; ctx.textBaseline='middle';
-    ctx.fillStyle='#fff5fb'; ctx.font='bold 23px -apple-system, sans-serif';
+
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.arc(0,0,radius,start,end);
+    ctx.closePath();
+    ctx.fillStyle = colors[i%2];
+    ctx.fill();
+    ctx.strokeStyle = '#f5c3df';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.save();
+    ctx.rotate(start + Math.PI/slices);
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#fff5fb';
+    ctx.font = 'bold 23px -apple-system, sans-serif';
+
     let label = players[i%2===0?'A':'B'].name;
-    while (ctx.measureText(label).width > 175 && label.length > 5) label = label.slice(0,-2)+'…';
-    ctx.fillText(label, radius-18, 0); ctx.restore();
+    while (ctx.measureText(label).width > 175 && label.length > 5) {
+      label = label.slice(0,-2)+'…';
+    }
+
+    ctx.fillText(label,radius-18,0);
+    ctx.restore();
   }
-  ctx.beginPath(); ctx.arc(0,0,43,0,Math.PI*2); ctx.fillStyle='#f5c3df'; ctx.fill();
-  ctx.fillStyle='#321b36'; ctx.font='bold 25px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('XXL',0,0);
+
+  ctx.beginPath();
+  ctx.arc(0,0,43,0,Math.PI*2);
+  ctx.fillStyle = '#f5c3df';
+  ctx.fill();
+  ctx.fillStyle = '#321b36';
+  ctx.font = 'bold 25px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('XXL',0,0);
   ctx.restore();
 }
+
 function spinWheel() {
   if (spinning) return;
+
   spinning = true;
   $('spinWheel').disabled = true;
+
   const winner = Math.random() < .5 ? 'A' : 'B';
-  const target = winner === 'A' ? 0 : Math.PI;
+  const target = winner === 'A' ? (23*Math.PI/12) : (21*Math.PI/12);
   const currentAngle = ((wheelRotation % (Math.PI*2)) + Math.PI*2) % (Math.PI*2);
   const delta = 6*Math.PI*2 + ((target-currentAngle+Math.PI*2)%(Math.PI*2));
-  const start = wheelRotation, end = start + delta, started = performance.now(), duration = 2600;
+
+  const start = wheelRotation;
+  const end = start + delta;
+  const started = performance.now();
+  const duration = 2600;
+
   function animate(now) {
     const t = Math.min(1,(now-started)/duration);
     const eased = 1-Math.pow(1-t,4);
     wheelRotation = start + (end-start)*eased;
     drawWheel();
-    if (t<1) requestAnimationFrame(animate);
-    else {
+
+    if (t<1) {
+      requestAnimationFrame(animate);
+    } else {
       player = winner;
       $('turnName').textContent = `${players[player].name} · ${players[player].sex}`;
-      if (current) $('challengeTag').textContent = `${category} · Turno de ${players[player].name}`;
-      spinning = false; $('spinWheel').disabled = false;
+      if (current) {
+        $('challengeTag').textContent = `${category} · Turno de ${players[player].name}`;
+      }
+      spinning = false;
+      $('spinWheel').disabled = false;
     }
   }
+
   requestAnimationFrame(animate);
 }
+
 function setCategory(next) {
   category = next;
-  document.querySelectorAll('.cat').forEach(b => b.classList.toggle('active', b.dataset.cat === category));
-  if (current) $('challengeTag').textContent = `${category} · Turno de ${players[player].name}`;
+  document.querySelectorAll('.cat').forEach(button => {
+    button.classList.toggle('active',button.dataset.cat === category);
+  });
+
+  if (current) {
+    $('challengeTag').textContent = `${category} · Turno de ${players[player].name}`;
+  }
   updateCounter();
 }
-document.querySelectorAll('.cat').forEach(b => b.addEventListener('click', () => setCategory(b.dataset.cat)));
-$('savePlayers').addEventListener('click', () => {
+
+document.querySelectorAll('.cat').forEach(button => {
+  button.addEventListener('click',() => setCategory(button.dataset.cat));
+});
+
+$('savePlayers').addEventListener('click',() => {
   if (spinning) return;
   updatePlayers();
   player = 'A';
-  $('turnName').textContent = `${players[player].name} · ${players[player].sex}`;
+  $('turnName').textContent = `${players.A.name} · ${players.A.sex}`;
   $('setupScreen').hidden = true;
   $('gameScreen').hidden = false;
   drawWheel();
 });
-$('spinWheel').addEventListener('click', spinWheel);
-$('draw').addEventListener('click', draw);
-$('pass').addEventListener('click', draw);
-$('switch').addEventListener('click', () => {
-  spinWheel();
-});
-$('reset').addEventListener('click', () => {
-  used = new Set(); current = null;
+
+$('spinWheel').addEventListener('click',spinWheel);
+$('draw').addEventListener('click',draw);
+$('pass').addEventListener('click',draw);
+$('switch').addEventListener('click',spinWheel);
+
+$('reset').addEventListener('click',() => {
+  used = new Set();
+  current = null;
+  completedRounds = 0;
+  lastMilestone = 0;
+
   $('challengeTag').textContent = `${category} · Turno de ${players[player].name}`;
   $('challengeText').textContent = 'Partida reiniciada. Pulsa «Sacar reto» para empezar.';
   $('challengeHint').textContent = 'Podéis pasar cualquier reto sin dar explicaciones.';
+
+  $('secretA').value = '';
+  $('secretB').value = '';
+  $('secretResults').replaceChildren();
+
+  stopTimer();
+  timerSeconds = Number($('timerMinutes').value) || 30;
+  updateTimerDisplay();
   updateCounter();
 });
+
 const modeHints = {
-  'Calentamiento': 'Empieza suave: conexión, besos y complicidad. Subid solo si ambos queréis.',
-  'Pasión': 'Más intensidad y coqueteo. Elegid juntos qué os apetece explorar.',
-  'Sin límites': 'Modo atrevido, pero acordad límites reales antes. Siempre podéis parar.'
+  'Calentamiento':'Empieza suave: conexión, besos y complicidad. Subid solo si ambos queréis.',
+  'Pasión':'Más intensidad y coqueteo. Elegid juntos qué os apetece explorar.',
+  'Sin límites':'Modo atrevido, pero acordad límites reales antes. Siempre podéis parar.'
 };
+
 function setMode(next) {
   mode = next;
-  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  document.querySelectorAll('.mode-btn').forEach(button => {
+    button.classList.toggle('active',button.dataset.mode === mode);
+  });
+
   $('modeHint').textContent = modeHints[mode];
-  setCategory(mode === 'Calentamiento' ? 'Suave' : mode === 'Pasión' ? 'Picante' : 'Muy atrevido');
+  setCategory(
+    mode === 'Calentamiento' ? 'Suave' :
+    mode === 'Pasión' ? 'Picante' :
+    'Muy atrevido'
+  );
 }
-const surpriseCards = ['Carta sorpresa: elegid una canción y bailad juntos.','Carta sorpresa: intercambiad un cumplido que nunca os hayáis dicho.','Carta sorpresa: daos un masaje de hombros de dos minutos por turnos.','Carta sorpresa: cada uno propone un beso y el otro decide si le apetece.','Carta sorpresa: dedicaos un minuto de atención sin distracciones.','Carta sorpresa: inventad una cita especial para otro día.'];
-const truthDares = ['Verdad: ¿qué gesto de tu pareja te parece especialmente atractivo?','Verdad: ¿qué experiencia romántica o sensual te gustaría compartir?','Verdad: ¿qué te ayuda a sentirte deseado/a y cómodo/a?','Verdad: ¿qué límite te gusta que siempre se respete?','Reto: mantén la mirada 20 segundos y di algo bonito.','Reto: pide un beso, abrazo o masaje; la otra persona puede pasar.'];
-const secretDesires = ['Deseo secreto: comparte una fantasía que te sientas cómodo/a contando.','Deseo secreto: cuenta algo nuevo que te gustaría probar juntos, aunque solo sea hablarlo.','Deseo secreto: describe el ambiente perfecto para una noche especial.','Deseo secreto: di qué beso o caricia te gustaría recibir y pregunta si apetece.'];
-function showSpecial(text, label) {
+
+document.querySelectorAll('.mode-btn').forEach(button => {
+  button.addEventListener('click',() => setMode(button.dataset.mode));
+});
+
+const surpriseCards = [
+  'Carta sorpresa: elegid una canción y bailad juntos.',
+  'Carta sorpresa: intercambiad un cumplido que nunca os hayáis dicho.',
+  'Carta sorpresa: daos un masaje de hombros de dos minutos por turnos.',
+  'Carta sorpresa: cada uno propone un beso y el otro decide si le apetece.',
+  'Carta sorpresa: dedicaos un minuto de atención sin distracciones.',
+  'Carta sorpresa: inventad una cita especial para otro día.'
+];
+
+const truthCards = [
+  '¿Qué gesto de tu pareja te parece especialmente atractivo?',
+  '¿Qué experiencia romántica o sensual te gustaría compartir?',
+  '¿Qué te ayuda a sentirte deseado/a y cómodo/a?',
+  '¿Qué límite te gusta que siempre se respete?'
+];
+
+const dareCards = [
+  'Mantén la mirada durante 20 segundos y di algo bonito.',
+  'Pide un beso, abrazo o masaje; la otra persona puede pasar.',
+  'Haz un baile sensual de 30 segundos.',
+  'Susurra una invitación romántica o atrevida.'
+];
+
+const secretDesires = [
+  'Comparte una fantasía que te sientas cómodo/a contando.',
+  'Cuenta algo nuevo que te gustaría probar juntos, aunque solo sea hablarlo.',
+  'Describe el ambiente perfecto para una noche especial.',
+  'Di qué beso o caricia te gustaría recibir y pregunta si apetece.'
+];
+
+function showSpecial(text,label) {
   $('challengeTag').textContent = `${label} · Turno de ${players[player].name}`;
   $('challengeText').textContent = text;
   $('challengeHint').textContent = 'Habladlo primero. Se puede adaptar o pasar sin explicaciones.';
@@ -338,40 +613,153 @@ function showSpecial(text, label) {
   void $('challengeBox').offsetWidth;
   $('challengeBox').classList.add('reveal');
 }
-function updateTimerDisplay() {
-  $('timerReadout').textContent = `${String(Math.floor(timerSeconds/60)).padStart(2,'0')}:${String(timerSeconds%60).padStart(2,'0')}`;
+
+$('surprise').addEventListener('click',() => {
+  const card = surpriseCards[Math.floor(Math.random()*surpriseCards.length)];
+  showSpecial(card,'Carta sorpresa');
+});
+
+$('truthDare').addEventListener('click',() => {
+  const options = document.createElement('div');
+  options.className = 'secret-item';
+
+  const title = document.createElement('strong');
+  title.textContent = 'Elegid una opción: ';
+
+  const truth = document.createElement('button');
+  truth.className = 'secondary-btn';
+  truth.textContent = 'Verdad';
+
+  const dare = document.createElement('button');
+  dare.className = 'secondary-btn';
+  dare.textContent = 'Reto';
+
+  truth.addEventListener('click',() => {
+    showSpecial(truthCards[Math.floor(Math.random()*truthCards.length)],'Verdad');
+  });
+
+  dare.addEventListener('click',() => {
+    showSpecial(dareCards[Math.floor(Math.random()*dareCards.length)],'Reto');
+  });
+
+  options.append(title,truth,dare);
+  $('secretResults').replaceChildren(options);
+});
+
+$('secretReveal').addEventListener('click',() => {
+  const text = secretDesires[Math.floor(Math.random()*secretDesires.length)];
+  showSpecial(text,'Deseo secreto');
+});
+
+$('revealSecrets').addEventListener('click',() => {
+  const a = $('secretA').value.trim();
+  const b = $('secretB').value.trim();
+
+  if (!a || !b) {
+    $('secretResults').textContent = 'Los dos tenéis que escribir vuestro deseo antes de revelarlos.';
+    return;
+  }
+
+  $('secretResults').replaceChildren();
+
+  [[players.A.name,a],[players.B.name,b]].forEach(([name,value]) => {
+    const item = document.createElement('div');
+    item.className = 'secret-item';
+
+    const title = document.createElement('strong');
+    title.textContent = name + ': ';
+
+    const content = document.createElement('span');
+    content.textContent = value;
+
+    item.append(title,content);
+    $('secretResults').append(item);
+  });
+
+  $('secretA').value = '';
+  $('secretB').value = '';
+});
+
+$('nextLevel').addEventListener('click',() => {
+  const levels = ['Calentamiento','Pasión','Sin límites'];
+  const index = levels.indexOf(mode);
+  setMode(levels[Math.min(2,index+1)]);
+  showSpecial(`Habéis elegido ${mode}. ¿Os apetece continuar a este nivel?`,'Subida de intensidad');
+});
+
+function checkProgress() {
+  const milestone = Math.floor(completedRounds/3);
+  if (milestone <= lastMilestone) return;
+
+  lastMilestone = milestone;
+
+  const levels = ['Calentamiento','Pasión','Sin límites'];
+  const next = levels[Math.min(2,milestone)];
+
+  if (next !== mode) {
+    setMode(next);
+    showSpecial(
+      `¡Habéis completado ${completedRounds} rondas! Nivel ${mode} desbloqueado. ¡Sacad una carta sorpresa para celebrarlo!`,
+      'Nivel desbloqueado'
+    );
+  } else {
+    showSpecial(
+      '¡Ronda especial! Elegid juntos una carta sorpresa o descansad un momento.',
+      'Pequeña sorpresa'
+    );
+  }
 }
+
+function updateTimerDisplay() {
+  const minutes = Math.floor(timerSeconds/60);
+  const seconds = timerSeconds%60;
+
+  $('timerReadout').textContent =
+    `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+}
+
 function stopTimer() {
   if (timerInterval) clearInterval(timerInterval);
   timerInterval = null;
   $('timerStart').disabled = false;
 }
-document.querySelectorAll('.mode-btn').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
-$('surprise').addEventListener('click', () => showSpecial(surpriseCards[Math.floor(Math.random()*surpriseCards.length)], 'Carta sorpresa'));
-$('truthDare').addEventListener('click', () => showSpecial(truthDares[Math.floor(Math.random()*truthDares.length)], 'Verdad o reto'));
-$('secretReveal').addEventListener('click', () => showSpecial(secretDesires[Math.floor(Math.random()*secretDesires.length)], 'Deseo secreto'));
-$('nextLevel').addEventListener('click', () => {
-  const levels = ['Calentamiento','Pasión','Sin límites'];
-  setMode(levels[Math.min(2, levels.indexOf(mode)+1)]);
-  showSpecial(`Habéis elegido ${mode}. ¿Os apetece continuar a este nivel?`, 'Subida de intensidad');
-});
-$('timerMinutes').addEventListener('change', () => {
-  const mins = Math.max(1, Math.min(30, Number($('timerMinutes').value)||2));
-  $('timerMinutes').value = mins;
-  if (!timerInterval) { timerSeconds = mins*60; updateTimerDisplay(); }
-});
-$('timerStart').addEventListener('click', () => {
+
+$('timerMinutes').addEventListener('change',() => {
   if (timerInterval) return;
-  if (timerSeconds <= 0) timerSeconds = Math.max(1,Math.min(30,Number($('timerMinutes').value)||2))*60;
+  timerSeconds = Number($('timerMinutes').value) || 30;
+  updateTimerDisplay();
+});
+
+$('timerStart').addEventListener('click',() => {
+  if (timerInterval) return;
+
+  if (timerSeconds <= 0) {
+    timerSeconds = Number($('timerMinutes').value) || 30;
+  }
+
   $('timerStart').disabled = true;
+
   timerInterval = setInterval(() => {
-    timerSeconds = Math.max(0,timerSeconds-1); updateTimerDisplay();
-    if (timerSeconds === 0) { stopTimer(); showSpecial('¡Tiempo! Decidid juntos si queréis seguir, cambiar o descansar.','Temporizador'); }
+    timerSeconds = Math.max(0,timerSeconds-1);
+    updateTimerDisplay();
+
+    if (timerSeconds === 0) {
+      stopTimer();
+      showSpecial(
+        '¡Se acabó el tiempo! Decidid si queréis seguir, cambiar de reto o descansar.',
+        'Cuenta atrás'
+      );
+    }
   },1000);
 });
-$('timerStop').addEventListener('click', () => {
-  stopTimer(); timerSeconds = Math.max(1,Math.min(30,Number($('timerMinutes').value)||2))*60; updateTimerDisplay();
+
+$('timerStop').addEventListener('click',() => {
+  stopTimer();
+  timerSeconds = Number($('timerMinutes').value) || 30;
+  updateTimerDisplay();
 });
+
+// Permite que los botones de reto utilicen la progresión automática.
 updatePlayers();
 updateTimerDisplay();
 updateCounter();
