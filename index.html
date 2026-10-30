@@ -68,9 +68,6 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .mode-btn.active { background:#70405f; border-color:#f09bcc; box-shadow:0 0 18px #f09bcc33; }
 .feature-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
 .feature-btn { border:1px solid #60425f; background:linear-gradient(135deg,#39203b,#241728); color:#fff5fb; padding:13px 9px; border-radius:13px; font-weight:750; cursor:pointer; }
-.timer-line { display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap; margin-top:12px; }
-.timer-line input { width:76px; padding:9px; border-radius:9px; border:1px solid #64445f; background:#241728; color:white; }
-.timer-readout { color:#ffd7eb; font-size:1.15rem; font-weight:850; min-width:56px; text-align:center; }
 .challenge.reveal { animation:reveal .55s ease both; }
 @keyframes reveal { 0%{opacity:.35;transform:scale(.97);filter:blur(4px)} 100%{opacity:1;transform:scale(1);filter:blur(0)} }
 @keyframes glow { 0%,100%{box-shadow:0 0 10px #e17db622} 50%{box-shadow:0 0 28px #e17db677} }
@@ -78,7 +75,11 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 @keyframes wheelGlow { 0%,100%{filter:drop-shadow(0 0 8px #f09bcc55)} 50%{filter:drop-shadow(0 0 25px #f09bcc)} }
 #turnWheel { animation:wheelGlow 2.8s ease-in-out infinite; }
 .challenge.reveal { animation:reveal .55s ease both, glow 2.4s ease-in-out infinite; }
-.secret-list { display:grid; gap:7px; margin-top:8px; }
+.secret-list { display:grid; gap:12px; margin-top:8px; }
+.truth-wheel-wrap { display:flex; flex-direction:column; align-items:center; gap:12px; }
+.truth-pointer { color:#ffd7eb; font-size:1.8rem; line-height:1; margin-bottom:-18px; z-index:2; text-shadow:0 2px 8px #000; }
+#truthDareWheel { display:block; width:min(78vw,320px); height:auto; filter:drop-shadow(0 8px 18px #0007); }
+.truth-result { text-align:center; color:#ffe0f0; font-weight:750; line-height:1.5; }
 .secret-item { border:1px solid #70405f; background:#241728; padding:10px; border-radius:10px; color:#ffe0f0; font-size:.88rem; }
 @media (min-width: 520px) { #app { padding-left: 24px; padding-right: 24px; } .categories { grid-template-columns: repeat(3, minmax(0, 1fr)); } .cat { min-height: 78px; } }
 @media (prefers-color-scheme: light) { /* Keep the app's intentional dark, intimate palette in both host modes. */ }
@@ -91,7 +92,7 @@ button:disabled { opacity: .4; cursor: not-allowed; }
     <div class="eyebrow">Juego para dos · solo con consentimiento</div>
     <h1>RULETA <span style="color:#f09bcc">XXX XXL</span></h1>
     <p class="subtitle">Elegid categoría, cambiad de turno y dejad que salga el siguiente reto.</p>
-    <div class="pill">Más de 250 retos y preguntas · sin repetir hasta agotarlos</div>
+    <div class="pill">Retos y preguntas hot para jugar en pareja</div>
   </header>
   <section class="setup-screen" id="setupScreen">
   <section class="panel">
@@ -140,7 +141,7 @@ button:disabled { opacity: .4; cursor: not-allowed; }
     <div class="tag" id="challengeTag">Todo mezclado · Tu reto</div>
     <h2 id="challengeText">Pulsa «Sacar reto» para empezar la partida.</h2>
     <p class="hint" id="challengeHint">Podéis pasar cualquier reto sin dar explicaciones.</p>
-    <div class="counter" id="counter">Más de 250 retos disponibles</div>
+    <div class="counter" id="counter">Retos disponibles en cada categoría</div>
   </section>
   <section class="actions">
     <button class="primary" id="draw">🎲 Sacar reto</button>
@@ -155,8 +156,15 @@ button:disabled { opacity: .4; cursor: not-allowed; }
       <button class="feature-btn" id="truthDare">🎭 Verdad o reto</button>
       <button class="feature-btn" id="nextLevel">📈 Subir intensidad</button>
     </div>
-    <div class="secret-list" id="truthDareChoices" aria-live="polite"></div>
-    <div class="timer-line"><label for="timerMinutes">Cuenta atrás</label><select id="timerMinutes" style="padding:9px;border-radius:9px;background:#241728;color:white;border:1px solid #64445f"><option value="30">30 segundos</option><option value="60">60 segundos</option><option value="90">90 segundos</option></select><span class="timer-readout" id="timerReadout">00:30</span><button class="secondary-btn" id="timerStart">▶ Iniciar</button><button class="secondary-btn" id="timerStop">■ Parar</button></div>
+    <div class="secret-list" id="truthDareChoices" aria-live="polite">
+      <p class="hint">Gira la ruleta para descubrir si toca una verdad muy picante o un reto atrevido.</p>
+      <div class="truth-wheel-wrap">
+        <div class="truth-pointer" aria-hidden="true">▼</div>
+        <canvas id="truthDareWheel" width="440" height="440" aria-label="Ruleta de verdad o reto"></canvas>
+        <button class="feature-btn" id="spinTruthDare">🎡 Girar ruleta hot</button>
+        <p class="truth-result" id="truthDareResult">La ruleta decidirá vuestro siguiente desafío.</p>
+      </div>
+    </div>
   </section>
   <p class="footer">Regla de oro: consentimiento mutuo, comunicación y libertad para parar o cambiar cualquier reto. No hay penalización por pasar.</p>
   </div>
@@ -213,8 +221,6 @@ let current = null;
 let wheelRotation = 0;
 let spinning = false;
 let mode = 'Calentamiento';
-let timerInterval = null;
-let timerSeconds = 120;
 let secretPending = false;
 const $ = id => document.getElementById(id);
 function pool() { return all.filter(x => (category === 'Todo mezclado' || x.cat === category) && !used.has(x.cat + '|' + x.text)); }
@@ -334,67 +340,66 @@ function setMode(next) {
 }
 const surpriseCards = ['Carta sorpresa: elegid una canción y bailad juntos.','Carta sorpresa: intercambiad un cumplido que nunca os hayáis dicho.','Carta sorpresa: daos un masaje de hombros de dos minutos por turnos.','Carta sorpresa: cada uno propone un beso y el otro decide si le apetece.','Carta sorpresa: dedicaos un minuto de atención sin distracciones.','Carta sorpresa: inventad una cita especial para otro día.'];
 const truthDares = [
-  'Verdad: ¿qué gesto de tu pareja te parece especialmente atractivo?',
-  'Verdad: ¿qué experiencia romántica o sensual te gustaría compartir?',
-  'Verdad: ¿qué te ayuda a sentirte deseado/a y cómodo/a?',
-  'Verdad: ¿qué límite te gusta que siempre se respete?',
-  'Verdad: ¿cuál fue el momento en que más nervios sentiste al conocer a tu pareja?',
-  'Verdad: ¿qué pequeño detalle de tu pareja te alegra el día?',
-  'Verdad: ¿qué canción te recuerda a un momento especial juntos?',
-  'Verdad: ¿qué plan romántico te gustaría que preparase tu pareja?',
-  'Verdad: ¿qué cumplido recuerdas con más cariño?',
-  'Verdad: ¿qué te hace sentir más conectado/a con la otra persona?',
-  'Verdad: ¿qué cita repetirías una y otra vez?',
-  'Verdad: ¿qué actividad nueva te gustaría probar juntos?',
-  'Verdad: ¿qué es lo que más admiras de tu pareja?',
-  'Verdad: ¿qué te cuesta pedir aunque te gustaría?',
-  'Verdad: ¿prefieres los besos espontáneos o los que se hacen esperar?',
-  'Verdad: ¿qué ambiente te ayuda a relajarte y disfrutar de un momento íntimo?',
-  'Verdad: ¿qué recuerdo juntos te hace sonreír al instante?',
-  'Verdad: ¿qué te gustaría que hiciéramos más a menudo?',
-  'Verdad: ¿qué tipo de caricia te resulta más agradable?',
-  'Verdad: ¿qué fantasía romántica te gustaría contar, aunque no quieras llevarla a cabo?',
-  'Verdad: ¿qué palabra o gesto te hace sentir querido/a?',
-  'Verdad: ¿qué te gustaría aprender de tu pareja?',
-  'Verdad: ¿qué prefieres para una noche especial: música, charla o baile?',
-  'Verdad: ¿qué cosa atrevida te da curiosidad, siempre que ambos estéis de acuerdo?',
-  'Verdad: ¿qué te ayuda a decir que no con tranquilidad?',
-  'Verdad: ¿qué te gustaría que nunca cambiase entre vosotros?',
-  'Verdad: ¿cuál sería tu escapada ideal en pareja?',
-  'Verdad: ¿qué iniciativa de tu pareja te gustaría que tomase más a menudo?',
-  'Verdad: ¿qué te parece más seductor: una mirada, una voz o una sonrisa?',
-  'Verdad: ¿qué límite o preferencia te gustaría hablar con más calma?',
-  'Reto: mantén la mirada 20 segundos y di algo bonito.',
-  'Reto: pide un beso, abrazo o masaje; la otra persona puede pasar.',
-  'Reto: dedica a tu pareja tres cumplidos distintos, sin repetir ideas.',
-  'Reto: baila con tu pareja durante una canción.',
-  'Reto: susurra una frase romántica inventada en el momento.',
-  'Reto: da un masaje de manos durante un minuto, si le apetece.',
-  'Reto: recrea vuestra primera cita durante 30 segundos.',
-  'Reto: elige una canción que describa cómo te sientes y explica por qué.',
-  'Reto: dale a tu pareja un abrazo de 30 segundos.',
-  'Reto: inventa un apodo cariñoso nuevo para esta noche.',
-  'Reto: pregunta qué tipo de beso le apetece y, si quiere, dáselo.',
-  'Reto: representa cómo ligarías con tu pareja si os conocierais hoy.',
-  'Reto: di al oído una cosa que te encante de la otra persona.',
-  'Reto: deja que tu pareja elija entre baile, abrazo o masaje.',
-  'Reto: prepara una mini cita imaginaria en tres pasos.',
-  'Reto: da cinco besos en lugares que tu pareja elija y acepte.',
-  'Reto: imita de forma cariñosa la manera de reír de tu pareja.',
-  'Reto: inventad un saludo secreto que termine con un abrazo.',
-  'Reto: cuenta una anécdota vuestra como si fuese el tráiler de una película.',
-  'Reto: deja que tu pareja escoja la próxima canción.',
-  'Reto: pregunta qué le haría sentirse especialmente cuidado/a ahora mismo.',
-  'Reto: haz una mirada seductora durante 15 segundos sin reírte.',
-  'Reto: propone un plan para vuestra próxima cita y deja que tu pareja lo mejore.',
-  'Reto: dedica un minuto a acariciar suavemente sus manos, si le gusta.',
-  'Reto: di tres cosas que te gustaría hacer juntos este mes.',
-  'Reto: pide permiso para dar un beso en el cuello o elige otra zona cómoda.',
-  'Reto: deja que tu pareja guíe un baile lento durante 30 segundos.',
-  'Reto: confiesa algo que te daba vergüenza decir y que sea agradable compartir.',
-  'Reto: elegid una palabra para pedir que algo vaya más despacio y otra para parar.',
-  'Reto: termina la frase «me siento más cerca de ti cuando…».',
-  'Reto: elegid juntos una carta anterior y cambiad una regla para hacerla más divertida.'
+  'Verdad: ¿Qué tipo de beso te enciende más: lento, intenso o inesperado?',
+  'Verdad: ¿En qué parte del cuello te gusta más que te besen?',
+  'Verdad: ¿Qué fantasía sexual te da curiosidad contarme?',
+  'Verdad: ¿Te gusta más tomar la iniciativa o que la tome tu pareja?',
+  'Verdad: ¿Qué caricia hace que se te ponga la piel de gallina?',
+  'Verdad: ¿Qué es lo más atrevido que te gustaría probar conmigo?',
+  'Verdad: ¿Qué opinas del sexo oral y qué límites o preferencias tienes?',
+  'Verdad: ¿Qué palabra o susurro te resulta especialmente excitante?',
+  'Verdad: ¿Qué prenda de tu pareja te parece más sexy?',
+  'Verdad: ¿Prefieres los preliminares largos o ir poco a poco al grano?',
+  'Verdad: ¿Hay alguna fantasía que te gustaría explorar solo hablando primero?',
+  'Verdad: ¿Qué zona de tu cuerpo te gusta que besen más?',
+  'Verdad: ¿Qué experiencia íntima te gustaría repetir?',
+  'Verdad: ¿Qué te da más morbo: vendarte los ojos o llevar tú la iniciativa?',
+  'Verdad: ¿Qué tipo de masaje sensual te gustaría recibir?',
+  'Verdad: ¿Qué lugar privado y seguro te parece especialmente sugerente para intimar?',
+  'Verdad: ¿Qué te gustaría que te pidiera más a menudo en la intimidad?',
+  'Verdad: ¿Qué ritmo prefieres durante los besos y las caricias?',
+  'Verdad: ¿Qué escena de seducción te gustaría vivir conmigo?',
+  'Verdad: ¿Qué límite íntimo te parece importante dejar claro siempre?',
+  'Verdad: ¿Qué fantasía te cuesta más reconocer en voz alta?',
+  'Verdad: ¿Qué te resulta más excitante: una mirada, un roce o un susurro?',
+  'Verdad: ¿Te gustaría probar un juego de roles? ¿Cuál te llama la atención?',
+  'Verdad: ¿Qué te gustaría que hiciera durante los preliminares, si ambos estamos de acuerdo?',
+  'Verdad: ¿Qué recuerdo íntimo nuestro te pone una sonrisa traviesa?',
+  'Verdad: ¿Qué te apetece explorar más: besos por el cuerpo, masajes o juegos de seducción?',
+  'Verdad: ¿Qué te gusta más: dar placer o recibirlo?',
+  'Verdad: ¿Hay algo que no hayas probado y quieras hablar conmigo antes?',
+  'Verdad: ¿Qué tipo de iniciativa te hace sentir más deseado/a?',
+  'Verdad: ¿Qué te gustaría que pasara después de esta partida, si a los dos nos apetece?',
+  'Reto: Da tres besos lentos en el cuello de tu pareja, si le gusta.',
+  'Reto: Susurra al oído una fantasía que te gustaría explorar juntos.',
+  'Reto: Ofrece un masaje sensual de dos minutos y pregunta qué zonas prefiere.',
+  'Reto: Haz un baile privado y seductor durante una canción.',
+  'Reto: Da un beso lento en el cuello y deja que tu pareja indique si quiere más.',
+  'Reto: Describe una escena de seducción que os gustaría representar.',
+  'Reto: Pregunta si le apetece hablar de sexo oral: deseos, límites e higiene, sin presión.',
+  'Reto: Deja que tu pareja elija entre un beso largo, un masaje o un baile.',
+  'Reto: Besa lentamente las zonas que tu pareja señale y haya aceptado.',
+  'Reto: Susurra tres cosas que te gustaría probar en vuestra próxima noche íntima.',
+  'Reto: Representa cómo intentarías seducir a tu pareja si os conocierais hoy.',
+  'Reto: Propón un juego de roles y acordad primero qué sí y qué no.',
+  'Reto: Da un masaje en hombros, espalda o piernas, donde tu pareja prefiera.',
+  'Reto: Deja que tu pareja elija una canción para un baile muy pegado.',
+  'Reto: Dile al oído qué parte de su cuerpo te parece más atractiva.',
+  'Reto: Pregunta qué tipo de preliminar le apetece y escucha su respuesta.',
+  'Reto: Intercambiad un beso de 30 segundos, marcando el ritmo entre los dos.',
+  'Reto: Con permiso, acaricia suavemente la nuca y da un beso en la mejilla.',
+  'Reto: Cuenta una fantasía en voz baja; la otra persona puede añadir un detalle.',
+  'Reto: Elige entre vendarte los ojos o guiar tú un juego de besos, siempre con permiso.',
+  'Reto: Haz una propuesta íntima atrevida que pueda aceptarse, cambiarse o rechazarse.',
+  'Reto: Da un beso en cada zona que tu pareja elija y confirme.',
+  'Reto: Susurra una frase provocadora sin tocar a tu pareja durante 20 segundos.',
+  'Reto: Deja que tu pareja dirija un masaje de manos y brazos.',
+  'Reto: Recread una primera cita con un final de beso de película.',
+  'Reto: Pregunta qué le gustaría recibir: besos, caricias o masaje, y respeta su elección.',
+  'Reto: Acercaos frente a frente y decidid por turnos dónde dar el siguiente beso.',
+  'Reto: Inventad una palabra para pedir más intensidad y otra para parar.',
+  'Reto: Propón explorar una fantasía solo con palabras durante esta ronda.',
+  'Reto: Termina con una pregunta: «¿Quieres seguir, cambiar de juego o descansar?»'
 ];
 function showSpecial(text, label) {
   $('challengeTag').textContent = `${label} · Turno de ${players[player].name}`;
@@ -403,14 +408,6 @@ function showSpecial(text, label) {
   $('challengeBox').classList.remove('reveal');
   void $('challengeBox').offsetWidth;
   $('challengeBox').classList.add('reveal');
-}
-function updateTimerDisplay() {
-  $('timerReadout').textContent = `${String(Math.floor(timerSeconds/60)).padStart(2,'0')}:${String(timerSeconds%60).padStart(2,'0')}`;
-}
-function stopTimer() {
-  if (timerInterval) clearInterval(timerInterval);
-  timerInterval = null;
-  $('timerStart').disabled = false;
 }
 document.querySelectorAll('.mode-btn').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
 $('surprise').addEventListener('click', () => showSpecial(surpriseCards[Math.floor(Math.random()*surpriseCards.length)], 'Carta sorpresa'));
@@ -424,27 +421,9 @@ $('nextLevel').addEventListener('click', () => {
   setMode(levels[nextIndex]);
   showSpecial(`Habéis subido a ${mode}. ¿Os apetece continuar a este nivel?`, 'Subida de intensidad');
 });
-$('timerMinutes').addEventListener('change', () => {
-  const mins = Math.max(1, Math.min(30, Number($('timerMinutes').value)||2));
-  $('timerMinutes').value = mins;
-  if (!timerInterval) { timerSeconds = mins*60; updateTimerDisplay(); }
-});
-$('timerStart').addEventListener('click', () => {
-  if (timerInterval) return;
-  if (timerSeconds <= 0) timerSeconds = Math.max(1,Math.min(30,Number($('timerMinutes').value)||2))*60;
-  $('timerStart').disabled = true;
-  timerInterval = setInterval(() => {
-    timerSeconds = Math.max(0,timerSeconds-1); updateTimerDisplay();
-    if (timerSeconds === 0) { stopTimer(); showSpecial('¡Tiempo! Decidid juntos si queréis seguir, cambiar o descansar.','Temporizador'); }
-  },1000);
-});
-$('timerStop').addEventListener('click', () => {
-  stopTimer(); timerSeconds = Math.max(1,Math.min(30,Number($('timerMinutes').value)||2))*60; updateTimerDisplay();
-});
 updatePlayers();
-updateTimerDisplay();
 updateCounter();
-// Mejoras adicionales: progresión automática, secretos privados y temporizador corto.
+// Mejoras adicionales: progresión automática, secretos privados y ruleta de verdad o reto.
 let completedRounds = 0;
 let lastMilestone = 0;
 const originalDraw = draw;
@@ -465,53 +444,72 @@ draw = function() {
     }
   }
 };
-// Verdad o reto: botones visibles y separados para elegir el tipo.
+
+// Ruleta de Verdad o Reto: ocho sectores alternos y una carta hot al detenerse.
+let truthWheelRotation = 0;
+let truthWheelSpinning = false;
+function drawTruthDareWheel() {
+  const canvas = $('truthDareWheel');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const cx = 220, cy = 220, radius = 205, slices = 8;
+  const labels = ['VERDAD','RETO','VERDAD','RETO','VERDAD','RETO','VERDAD','RETO'];
+  const colors = ['#8e245f','#45233f'];
+  ctx.clearRect(0,0,440,440);
+  ctx.save(); ctx.translate(cx,cy); ctx.rotate(truthWheelRotation);
+  for (let i=0;i<slices;i++) {
+    const start = -Math.PI/2 + i*Math.PI*2/slices;
+    const end = start + Math.PI*2/slices;
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,radius,start,end); ctx.closePath();
+    ctx.fillStyle = colors[i%2]; ctx.fill();
+    ctx.strokeStyle = '#f5c3df'; ctx.lineWidth = 3; ctx.stroke();
+    ctx.save(); ctx.rotate(start + Math.PI/slices);
+    ctx.textAlign='right'; ctx.textBaseline='middle';
+    ctx.fillStyle='#fff5fb'; ctx.font='bold 23px -apple-system, sans-serif';
+    ctx.fillText(labels[i],radius-20,0); ctx.restore();
+  }
+  ctx.beginPath(); ctx.arc(0,0,38,0,Math.PI*2); ctx.fillStyle='#f5c3df'; ctx.fill();
+  ctx.fillStyle='#321b36'; ctx.font='bold 18px sans-serif'; ctx.textAlign='center';
+  ctx.textBaseline='middle'; ctx.fillText('XXL',0,0); ctx.restore();
+}
+function spinTruthDareWheel() {
+  if (truthWheelSpinning) return;
+  truthWheelSpinning = true;
+  $('spinTruthDare').disabled = true;
+  const type = Math.random() < 0.5 ? 'Verdad' : 'Reto';
+  const segment = Math.PI*2/8;
+  const target = - ( (type === 'Verdad' ? 0 : 1) * segment + segment/2 );
+  const current = ((truthWheelRotation%(Math.PI*2)) + Math.PI*2)%(Math.PI*2);
+  const normalizedTarget = ((target%(Math.PI*2)) + Math.PI*2)%(Math.PI*2);
+  const delta = 6*Math.PI*2 + ((normalizedTarget-current+Math.PI*2)%(Math.PI*2));
+  const start = truthWheelRotation, end = start+delta, started = performance.now(), duration = 3000;
+  function animate(now) {
+    const t = Math.min(1,(now-started)/duration), eased = 1-Math.pow(1-t,4);
+    truthWheelRotation = start+(end-start)*eased;
+    drawTruthDareWheel();
+    if (t<1) requestAnimationFrame(animate);
+    else {
+      const pool = truthDares.filter(item => item.startsWith(type+':'));
+      const selected = pool[Math.floor(Math.random()*pool.length)];
+      showSpecial(selected.replace(/^(Verdad|Reto):\s*/,''), type+' hot');
+      $('truthDareResult').textContent = type+' seleccionada. ¡A jugar, siempre con consentimiento!';
+      truthWheelSpinning = false; $('spinTruthDare').disabled = false;
+    }
+  }
+  requestAnimationFrame(animate);
+}
 $('truthDare').addEventListener('click', () => {
-  const choose = document.createElement('div');
-  choose.className = 'secret-item';
-  const label = document.createElement('strong');
-  label.textContent = 'Elegid una opción: ';
-  const truth = document.createElement('button');
-  truth.className = 'secondary-btn';
-  truth.textContent = 'Verdad';
-  const dare = document.createElement('button');
-  dare.className = 'secondary-btn';
-  dare.textContent = 'Reto';
-  truth.type = 'button'; dare.type = 'button';
-  truth.style.marginRight = '8px';
-  truth.addEventListener('click', () => showSpecial(truthDares.filter(x => x.startsWith('Verdad:'))[Math.floor(Math.random()*truthDares.filter(x => x.startsWith('Verdad:')).length)], 'Verdad'));
-  dare.addEventListener('click', () => showSpecial(truthDares.filter(x => x.startsWith('Reto:'))[Math.floor(Math.random()*truthDares.filter(x => x.startsWith('Reto:')).length)], 'Reto'));
-  choose.append(label, truth, dare);
-  $('truthDareChoices').replaceChildren(choose);
+  $('truthDareChoices').scrollIntoView({behavior:'smooth',block:'center'});
+  drawTruthDareWheel();
 });
-$('timerMinutes').addEventListener('change', () => {
-  if (timerInterval) return;
-  timerSeconds = Number($('timerMinutes').value) || 30;
-  updateTimerDisplay();
-}, true);
-$('timerStart').addEventListener('click', event => {
-  event.stopImmediatePropagation();
-  if (timerInterval) return;
-  if (timerSeconds <= 0) timerSeconds = Number($('timerMinutes').value) || 30;
-  $('timerStart').disabled = true;
-  timerInterval = setInterval(() => {
-    timerSeconds = Math.max(0,timerSeconds-1); updateTimerDisplay();
-    if (timerSeconds === 0) { clearInterval(timerInterval); timerInterval = null; $('timerStart').disabled = false; showSpecial('¡Se acabó el tiempo! Decidid si queréis seguir, cambiar de reto o descansar.','Cuenta atrás'); }
-  },1000);
-}, true);
-$('timerStop').addEventListener('click', event => {
-  event.stopImmediatePropagation();
-  if (timerInterval) clearInterval(timerInterval);
-  timerInterval = null; $('timerStart').disabled = false;
-  timerSeconds = Number($('timerMinutes').value) || 30; updateTimerDisplay();
-}, true);
+$('spinTruthDare').addEventListener('click', spinTruthDareWheel);
+drawTruthDareWheel();
+
 // Intercepta los botones originales para que la progresión automática se ejecute.
 ['draw','pass'].forEach(id => $(id).addEventListener('click', event => {
   event.stopImmediatePropagation();
   draw();
 }, true));
-timerSeconds = 30;
-updateTimerDisplay();
 </script>
 </body>
 </html>
