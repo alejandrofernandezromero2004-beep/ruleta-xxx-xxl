@@ -1,430 +1,263 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#16070f">
-<title>HOT ROULETTE XXL</title>
+<title>HOT DICE XXL</title>
 <style>
-:root {
-  --bg:#10070d;
-  --card:#24101d;
-  --pink:#ff3d91;
-  --gold:#ffbd70;
-  --text:#fff2f8;
-  --muted:#d8b8ca;
-}
-* { box-sizing:border-box; }
-body {
-  margin:0;
-  min-height:100vh;
-  padding:20px 15px;
-  color:var(--text);
-  font-family:Arial,sans-serif;
-  background:radial-gradient(ellipse at top,#672044,#230f20 48%,#10070d);
-}
-main { max-width:720px; margin:auto; }
-header { text-align:center; padding:20px 8px 25px; }
-.kicker {
-  color:#ffbdcf;
-  letter-spacing:.25em;
-  font-size:.7rem;
-  font-weight:900;
-}
-h1 {
-  font-size:clamp(2.7rem,10vw,5rem);
-  line-height:.9;
-  letter-spacing:-.07em;
-  margin:17px 0;
-  text-shadow:0 0 30px #ff3d9177;
-}
-h1 span { color:var(--pink); }
-.subtitle { color:var(--muted); line-height:1.5; }
-.card {
-  background:linear-gradient(145deg,#301528,#1b0e19);
-  border:1px solid #74304f;
-  border-radius:22px;
-  padding:19px;
-  margin:14px 0;
-  box-shadow:0 15px 40px #0006;
-}
-.label {
-  color:#ff9ec6;
-  font-size:.7rem;
-  font-weight:900;
-  letter-spacing:.16em;
-  margin:0 0 15px;
-}
-.fields {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-}
-.fields label {
-  display:block;
-  color:var(--muted);
-  font-size:.78rem;
-  margin-bottom:6px;
-}
-input,select {
-  width:100%;
-  min-width:0;
-  padding:13px 10px;
-  border:1px solid #78405d;
-  border-radius:11px;
-  background:#160b14;
-  color:white;
-  font:inherit;
-}
-button {
-  border:0;
-  border-radius:13px;
-  padding:14px 12px;
-  color:white;
-  font:inherit;
-  font-weight:850;
-  cursor:pointer;
-  background:linear-gradient(100deg,#d51d70,#ff4a9a);
-}
-button:disabled { opacity:.45; cursor:not-allowed; }
-.wide { width:100%; margin-top:14px; }
-.secondary {
-  background:#35192d;
-  border:1px solid #884362;
-}
-.screen[hidden] { display:none !important; }
-.turn {
-  text-align:center;
-  color:#ffc1d9;
-  font-weight:800;
-  margin:10px 0 15px;
-}
-.turn strong {
-  display:block;
-  color:white;
-  font-size:1.4rem;
-  margin-top:5px;
-}
-.wheelbox {
-  display:grid;
-  justify-items:center;
-  gap:12px;
-}
-.pointer {
-  color:var(--gold);
-  font-size:2rem;
-  line-height:1;
-  margin-bottom:-17px;
-  z-index:1;
-}
-#wheel {
-  width:min(82vw,370px);
-  height:auto;
-  filter:drop-shadow(0 0 22px #ff3d9155);
-}
-.result {
-  min-height:190px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-  background:radial-gradient(ellipse at top,#692344,#24101e 75%);
-}
-.result small {
-  color:#ffb0d0;
-  letter-spacing:.16em;
-  font-weight:900;
-}
-.result h2 {
-  font-size:clamp(1.3rem,5vw,1.9rem);
-  line-height:1.4;
-  margin:17px 0 5px;
-}
-.actions {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-.note {
-  text-align:center;
-  color:#c9aabb;
-  font-size:.76rem;
-  line-height:1.5;
-  margin:16px 8px;
-}
-@media(max-width:420px) {
-  .card { padding:15px; }
-  .fields { gap:9px; }
-}
+:root{--bg:#10070d;--card:#21101b;--pink:#ff3d91;--gold:#ffbd70}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 50% -10%,#672044,#230f20 42%,var(--bg) 78%);color:#fff2f8;font-family:system-ui,sans-serif}
+main{max-width:760px;margin:auto;padding:20px 16px}
+header{text-align:center;padding:22px 8px 26px}
+.kicker{color:#ffbdcf;letter-spacing:.2em;font-size:.7rem;font-weight:900}
+h1{font-size:clamp(2.5rem,10vw,4.8rem);line-height:.9;letter-spacing:-.07em}
+h1 span{color:var(--pink)}
+.sub{color:#e8bfd1;line-height:1.5}
+.card{background:linear-gradient(145deg,#301528,#1b0e19);border:1px solid #74304f;border-radius:22px;padding:18px;margin:14px 0}
+.label{color:#ff9ec6;font-size:.72rem;font-weight:900;letter-spacing:.16em}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:block;color:#e8bfd1;font-size:.8rem;margin-bottom:6px}
+input,select{width:100%;background:#160b14;color:white;border:1px solid #78405d;border-radius:12px;padding:12px;font:inherit}
+button{border:0;border-radius:14px;padding:14px 12px;color:white;font:inherit;font-weight:850;cursor:pointer;background:linear-gradient(100deg,#d51d70,#ff4a9a)}
+button:disabled{opacity:.45}
+.wide{width:100%;margin-top:14px}
+.secondary{background:#35192d;border:1px solid #884362}
+.screen[hidden]{display:none!important}
+.turn{text-align:center;color:#ffc1d9;font-weight:800}
+.turn strong{display:block;color:white;font-size:1.3rem;margin-top:5px}
+.dice{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.result{text-align:center;min-height:150px;display:flex;flex-direction:column;justify-content:center;align-items:center;background:radial-gradient(ellipse at top,#692344,#24101e 70%);border-radius:16px;padding:15px}
+.result small{color:#ffb0d0;letter-spacing:.15em;font-weight:900}
+.result h2{font-size:1.35rem;line-height:1.35;margin:14px 0}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.note{text-align:center;color:#c9aabb;font-size:.76rem;line-height:1.5;margin:16px 8px}
+@media(max-width:420px){main{padding:14px 10px}.card{padding:14px}.fields{gap:8px}}
 </style>
 </head>
 <body>
 <main>
-  <header>
-    <div class="kicker">SOLO ADULTOS · DESEO · CONSENTIMIENTO</div>
-    <h1>HOT <span>ROULETTE</span></h1>
-    <p class="subtitle">
-      Dos jugadores. Una ruleta. Retos atrevidos para subir la temperatura.
-    </p>
-  </header>
+<header>
+<div class="kicker">SOLO ADULTOS · DESEO · CONSENTIMIENTO</div>
+<h1>HOT <span>DICE XXL</span></h1>
+<p class="sub">Cada persona tira un dado. El número más bajo recibe el reto más atrevido.</p>
+</header>
 
-  <section class="screen" id="setup">
-    <div class="card">
-      <p class="label">01 / ELEGID JUGADORES</p>
-      <div class="fields">
-        <div>
-          <label for="nameA">Nombre jugador 1</label>
-          <input id="nameA" maxlength="24" placeholder="Nombre">
-        </div>
-        <div>
-          <label for="sexA">Sexo jugador 1</label>
-          <select id="sexA">
-            <option>Mujer</option>
-            <option>Hombre</option>
-            <option>No binario</option>
-            <option>Prefiero no decirlo</option>
-          </select>
-        </div>
-        <div>
-          <label for="nameB">Nombre jugador 2</label>
-          <input id="nameB" maxlength="24" placeholder="Nombre">
-        </div>
-        <div>
-          <label for="sexB">Sexo jugador 2</label>
-          <select id="sexB">
-            <option>Hombre</option>
-            <option>Mujer</option>
-            <option>No binario</option>
-            <option>Prefiero no decirlo</option>
-          </select>
-        </div>
-      </div>
-      <button class="wide" id="start">ENTRAR EN EL JUEGO ✦</button>
-    </div>
-    <p class="note">Juego para personas adultas. Se puede pasar cualquier reto o parar en cualquier momento.</p>
-  </section>
+<section class="screen" id="setup">
+<div class="card">
+<p class="label">01 / ELEGID JUGADORES</p>
+<div class="fields">
+<div><label for="nameA">Nombre jugador 1</label><input id="nameA" placeholder="Nombre"></div>
+<div><label for="sexA">Sexo jugador 1</label><select id="sexA"><option>Mujer</option><option>Hombre</option><option>No binario</option><option>Prefiero no decirlo</option></select></div>
+<div><label for="nameB">Nombre jugador 2</label><input id="nameB" placeholder="Nombre"></div>
+<div><label for="sexB">Sexo jugador 2</label><select id="sexB"><option>Hombre</option><option>Mujer</option><option>No binario</option><option>Prefiero no decirlo</option></select></div>
+</div>
+<button class="wide" id="start">ENTRAR EN EL JUEGO ✦</button>
+</div>
+<p class="note">Juego para personas adultas. Cualquier reto se puede adaptar, rechazar o parar en cualquier momento.</p>
+</section>
 
-  <section class="screen" id="game" hidden>
-    <div class="card">
-      <p class="label">02 / RULETA DE RETOS</p>
-      <div class="turn">TURNO DE<strong id="turn">—</strong></div>
-      <div class="wheelbox">
-        <div class="pointer">▼</div>
-        <canvas id="wheel" width="600" height="600"></canvas>
-        <button class="wide" id="spin">GIRAR LA RULETA 🔥</button>
-      </div>
-    </div>
+<section class="screen" id="play" hidden>
+<div class="card">
+<p class="label">02 / TIRADA DE DADOS</p>
+<div class="turn">JUGADORES<strong id="turn">—</strong></div>
+<div class="dice">
+<div class="result"><small id="labelA">JUGADOR 1</small><h2 id="dieA">🎲 —</h2></div>
+<div class="result"><small id="labelB">JUGADOR 2</small><h2 id="dieB">🎲 —</h2></div>
+</div>
+<button class="wide" id="roll">TIRAR LOS DOS DADOS 🎲</button>
+</div>
 
-    <div class="card result" aria-live="polite">
-      <small id="resultTag">EL RETO QUE HA SALIDO</small>
-      <h2 id="result">La ruleta está esperando…</h2>
-    </div>
+<div class="card result" aria-live="polite">
+<small id="tag">EL NÚMERO MÁS BAJO RECIBE EL RETO</small>
+<h2 id="challenge">Preparados para tirar…</h2>
+</div>
 
-    <div class="actions">
-      <button class="secondary" id="pass">PASAR RETO</button>
-      <button class="secondary" id="next">CAMBIAR TURNO</button>
-    </div>
-
-    <button class="secondary wide" id="restart">VOLVER A ELEGIR JUGADORES</button>
-    <p class="note">
-      Solo acciones consensuadas. Podéis adaptar o saltar cualquier reto sin explicaciones.
-    </p>
-  </section>
+<div class="actions">
+<button class="secondary" id="pass">PASAR RETO</button>
+<button class="secondary" id="next">NUEVA TIRADA</button>
+</div>
+<button class="secondary wide" id="restart">VOLVER A ELEGIR JUGADORES</button>
+<p class="note">Solo acciones consensuadas. Nada es obligatorio: podéis adaptar o saltar cualquier reto sin explicaciones.</p>
+</section>
 </main>
 
 <script>
-const tasks = [
-  'Quítate una prenda que tú elijas y deja que tu pareja admire el resultado.',
-  'Pide permiso para quitarle a tu pareja una prenda que haya elegido.',
-  'Cada uno se quita una prenda que quiera y decide si continúa.',
-  'Deja que tu pareja escoja entre quitarte una prenda o recibir un beso en una zona que elija.',
-  'Quítate una prenda lentamente; puedes parar o dejarte algo puesto cuando quieras.',
-  'Dale a tu pareja la oportunidad de elegir qué prenda te quitas, siempre puedes decir que no.',
-  'Quédate en ropa interior durante una ronda, solo si te apetece.',
-  'Intercambiad una prenda de ropa durante el siguiente turno.',
-  'Deja que tu pareja desabroche una prenda que tú hayas autorizado.',
-  'Elige una prenda de tu pareja y pregúntale si quiere quitársela.',
-  'Da cinco besos lentos repartidos entre cuello, hombros y clavícula, según indique tu pareja.',
-  'Besa lentamente el pecho de tu pareja solo si esa zona está expresamente permitida.',
-  'Recorre con besos el abdomen de tu pareja hasta el límite que haya señalado.',
-  'Dale besos por la espalda baja y las caderas, únicamente en las zonas acordadas.',
-  'Besa la parte interior de los muslos solo si tu pareja lo desea y marca hasta dónde.',
-  'Deja que tu pareja elija una zona íntima no explícita para recibir besos por encima de la ropa.',
-  'Da un recorrido de besos desde los hombros hasta el vientre, respetando las zonas vetadas.',
-  'Tu pareja elige tres zonas de su cuerpo para recibir besos; tú eliges el orden.',
-  'Besa lentamente la nuca, el cuello y los hombros durante un minuto.',
-  'Pide permiso para acariciar por encima de la ropa una zona que tu pareja elija.',
-  'Deja que tu pareja guíe tus manos y te indique dónde sí quiere caricias.',
-  'Quítale una prenda a tu pareja solo después de que te diga cuál y confirme que le apetece.',
-  'Cada uno elige una prenda que quiere conservar puesta y otra que estaría dispuesto a quitarse.',
-  'Haz una pausa para preguntar qué zonas quiere incluir tu pareja en el siguiente reto.',
-  'Propón un momento de preliminares: empieza con besos por el cuerpo y deja que tu pareja marque el ritmo.',
-  'Pregunta si le apetece explorar el sexo oral; hablad primero de preferencias y límites, sin obligación de hacerlo.',
-  'Si ambos lo deseáis, proponed un reto de sexo oral y acordad antes higiene, protección, comodidad y señal para parar.',
-  'Empieza con besos suaves por el abdomen y los muslos; detente donde tu pareja te indique.',
-  'Deja que tu pareja decida entre más besos por el cuerpo, quitar otra prenda o terminar el reto.',
-  'Terminad esta ronda eligiendo juntos qué os apetece explorar después; cualquier respuesta puede ser no.',
-  'Besa lentamente desde la clavícula hasta el hombro y deja que tu pareja elija el siguiente destino.',
-  'Quítate dos prendas, una por una, haciendo una pausa para comprobar que sigues disfrutando.',
-  'Pide a tu pareja que elija una prenda que te gustaría quitarte; tú decides si aceptas.',
-  'Dale un beso prolongado en el pecho o el abdomen, solo en las zonas que haya elegido.',
-  'Recorre con besos el costado y la cintura; deja que tu pareja marque el límite.',
-  'Besa lentamente la cara interna de los muslos por encima de la ropa, si ambos lo deseáis.',
-  'Deja que tu pareja te guíe con palabras durante un minuto de besos por el cuerpo.',
-  'Propón un striptease privado de una canción; elige tú qué prendas conservar.',
-  'Intercambiad una prenda y decidid si queréis llevar el juego un paso más allá.',
-  'Pide permiso para besar una zona más atrevida que todavía no hayáis explorado.',
-  'Da un masaje lento en la cintura, caderas y espalda; pregunta antes de cambiar de zona.',
-  'Susurra qué parte de los preliminares te gustaría alargar esta noche y pregunta qué desea tu pareja.',
-  'Deja que tu pareja elija entre un recorrido de besos, un masaje sensual o quitar otra prenda.',
-  'Besa el abdomen y los muslos lentamente, alternando pausas y miradas cómplices.',
-  'Hablad de una experiencia de sexo oral que os dé curiosidad y concretad qué os haría sentir cómodos.',
-  'Si ambos queréis, acordad una iniciativa íntima para esta ronda y una señal clara para parar.',
-  'Pide a tu pareja que describa cómo quiere recibir los próximos besos y sigue solo sus indicaciones.',
-  'Deja que tu pareja elija una prenda para quitarte y otra que quiere que conserves puesta.',
-  'Proponed un juego de seducción con los ojos cerrados; quien recibe puede guiar o detener cada gesto.',
-  'Da un recorrido de besos desde el cuello hasta el vientre y detente en cuanto te lo indiquen.',
-  'Pregúntale si quiere más intensidad, otro tipo de caricia o una pausa; respeta su elección.',
-  'Cada uno comparte una petición íntima concreta y el otro decide libremente si quiere probarla.',
-  'Preparad una ronda de preliminares sin objetivo ni prisa: besos, caricias acordadas y comunicación.',
-  'Elegid juntos una fantasía atrevida para contarla con detalle, sin obligación de llevarla a la práctica.',
-  'Cierra los ojos y deja que tu pareja escoja dónde darte tres besos; puedes cambiar cualquier elección.',
-  'Acordad si os apetece explorar el sexo oral otro día y qué límites, higiene y protección serían importantes.'
-];
-
 const $ = id => document.getElementById(id);
+
+const tasks = [
+'Quítate una prenda que tú elijas y deja que tu pareja admire el resultado.',
+'Pide permiso para quitarle a tu pareja una prenda que haya elegido.',
+'Cada uno se quita una prenda que quiera y decide si continúa.',
+'Deja que tu pareja escoja entre quitarte una prenda o recibir un beso en una zona que elija.',
+'Quítate una prenda lentamente; puedes parar o dejarte algo puesto cuando quieras.',
+'Dale a tu pareja la oportunidad de elegir qué prenda te quitas; siempre puedes decir que no.',
+'Quédate en ropa interior durante una ronda, solo si te apetece.',
+'Intercambiad una prenda de ropa durante el siguiente turno.',
+'Deja que tu pareja desabroche una prenda que tú hayas autorizado.',
+'Elige una prenda de tu pareja y pregúntale si quiere quitársela.',
+'Da cinco besos lentos repartidos entre cuello, hombros y clavícula, según indique tu pareja.',
+'Besa lentamente el pecho de tu pareja solo si esa zona está expresamente permitida.',
+'Recorre con besos el abdomen de tu pareja hasta el límite que haya señalado.',
+'Dale besos por la espalda baja y las caderas, únicamente en las zonas acordadas.',
+'Besa la parte interior de los muslos solo si tu pareja lo desea y marca hasta dónde.',
+'Deja que tu pareja elija una zona para recibir besos por encima de la ropa.',
+'Da un recorrido de besos desde los hombros hasta el vientre, respetando las zonas vetadas.',
+'Tu pareja elige tres zonas de su cuerpo para recibir besos; tú eliges el orden.',
+'Besa lentamente la nuca, el cuello y los hombros durante un minuto.',
+'Pide permiso para acariciar por encima de la ropa una zona que tu pareja elija.',
+'Deja que tu pareja guíe tus manos y te indique dónde quiere caricias.',
+'Quítale una prenda a tu pareja solo después de que te diga cuál y confirme que le apetece.',
+'Cada uno elige una prenda que quiere conservar puesta y otra que estaría dispuesto a quitarse.',
+'Haz una pausa para preguntar qué zonas quiere incluir tu pareja en el siguiente reto.',
+'Propón un momento de preliminares: empieza con besos por el cuerpo y deja que tu pareja marque el ritmo.',
+'Pregunta si le apetece explorar el sexo oral; hablad primero de preferencias y límites, sin obligación de hacerlo.',
+'Si ambos lo deseáis, proponed un reto íntimo y acordad antes higiene, protección, comodidad y señal para parar.',
+'Empieza con besos suaves por el abdomen y los muslos; detente donde tu pareja te indique.',
+'Deja que tu pareja decida entre más besos por el cuerpo, quitar otra prenda o terminar el reto.',
+'Terminad esta ronda eligiendo juntos qué os apetece explorar después.',
+'Besa lentamente desde la clavícula hasta el hombro y deja que tu pareja elija el siguiente destino.',
+'Quítate dos prendas, una por una, haciendo una pausa para comprobar que sigues disfrutando.',
+'Pide a tu pareja que elija una prenda que te gustaría quitarte; tú decides si aceptas.',
+'Dale un beso prolongado en el pecho o el abdomen, solo en las zonas que haya elegido.',
+'Recorre con besos el costado y la cintura; deja que tu pareja marque el límite.',
+'Besa lentamente la cara interna de los muslos por encima de la ropa, si ambos lo deseáis.',
+'Deja que tu pareja te guíe con palabras durante un minuto de besos por el cuerpo.',
+'Propón un striptease privado de una canción; elige tú qué prendas conservar.',
+'Intercambiad una prenda y decidid si queréis llevar el juego un paso más allá.',
+'Pide permiso para besar una zona más atrevida que todavía no hayáis explorado.',
+'Da un masaje lento en la cintura, caderas y espalda; pregunta antes de cambiar de zona.',
+'Susurra qué parte de los preliminares te gustaría alargar esta noche y pregunta qué desea tu pareja.',
+'Deja que tu pareja elija entre un recorrido de besos, un masaje sensual o quitar otra prenda.',
+'Besa el abdomen y los muslos lentamente, alternando pausas y miradas cómplices.',
+'Hablad de una experiencia íntima que os dé curiosidad y concretad qué os haría sentir cómodos.',
+'Si ambos queréis, acordad una iniciativa íntima para esta ronda y una señal clara para parar.',
+'Pide a tu pareja que describa cómo quiere recibir los próximos besos y sigue solo sus indicaciones.',
+'Deja que tu pareja elija una prenda para quitarte y otra que quiere que conserves puesta.',
+'Proponed un juego de seducción con los ojos cerrados; quien recibe puede guiar o detener cada gesto.',
+'Da un recorrido de besos desde el cuello hasta el vientre y detente en cuanto te lo indiquen.',
+'Pregúntale si quiere más intensidad, otro tipo de caricia o una pausa; respeta su elección.',
+'Cada uno comparte una petición íntima concreta y el otro decide libremente si quiere probarla.',
+'Preparad una ronda de preliminares sin objetivo ni prisa: besos, caricias acordadas y comunicación.',
+'Elegid juntos una fantasía atrevida para contarla con detalle, sin obligación de llevarla a la práctica.',
+'Cierra los ojos y deja que tu pareja escoja dónde darte tres besos; puedes cambiar cualquier elección.',
+'Acordad si os apetece explorar algo nuevo otro día y qué límites serían importantes.',
+'Elige una prenda que te apetezca quitarte y hazlo a tu ritmo; también puedes dejarla puesta.',
+'Pide a tu pareja que elija entre quitarte una prenda o darte un beso donde tú decidas.',
+'Haz un pequeño striptease de una canción, conservando cualquier prenda que quieras.',
+'Deja que tu pareja escoja una prenda que te quitarías; tú tienes la última palabra.',
+'Intercambiad una prenda o accesorio durante una ronda.',
+'Dale tres besos lentos en la nuca y detrás de la oreja, si le gustan esas zonas.',
+'Reparte cinco besos entre cuello, hombros y clavícula; tu pareja elige el orden.',
+'Besa suavemente la espalda y baja hasta la cintura, respetando el límite que te indiquen.',
+'Da un recorrido de besos por el abdomen y los costados, solo donde tu pareja te guíe.',
+'Pregunta si le apetece recibir besos en los muslos y deja que señale hasta dónde.',
+'Besa las manos, muñecas y antebrazos; termina con un beso donde tu pareja elija.',
+'Pide permiso para besar una zona nueva y acepta con naturalidad cualquier respuesta.',
+'Tu pareja elige dos zonas cómodas para recibir besos y tú decides cómo alternarlas.',
+'Combina un beso en el cuello con otro en el hombro y pregunta si quiere más.',
+'Quítate una prenda que tú elijas y dedica el siguiente turno a dar besos.',
+'Deja que tu pareja te quite una prenda que tú hayas elegido y autorizado.',
+'Cada uno decide si quiere quitarse una prenda; después intercambiad un beso.',
+'Haz un recorrido de besos desde la clavícula hasta el hombro, sin prisa.',
+'Besa la cintura y la cadera por encima de la ropa, si tu pareja lo desea.',
+'Deja que tu pareja guíe tu mano para indicar dónde quiere una caricia suave.',
+'Propón quitar una prenda y cambiarla por un masaje de dos minutos si apetece.',
+'Susurra qué zona te gustaría besar y pregunta si a tu pareja también le apetece.',
+'Elige entre un beso largo, un beso en el cuello o un masaje; tu pareja decide.',
+'Dale un beso en la espalda y otro en el hombro; deja que elija el siguiente lugar.',
+'Besa lentamente el abdomen y detente para comprobar si quiere continuar.',
+'Durante una canción, alterna besos en las zonas que tu pareja vaya indicando.',
+'Quítate una prenda si te apetece y deja que tu pareja te dedique un cumplido.',
+'Haz una ronda de besos: cada persona nombra una zona y la otra acepta o propone otra.',
+'Pregunta qué prenda le gustaría verte quitarte; decide libremente si aceptas.',
+'Cierra los ojos y recibe tres besos en lugares que hayas aprobado previamente.',
+'Besa detrás de la oreja, la nuca y los hombros, cambiando de zona solo si te lo piden.',
+'Dale a elegir entre un beso en la clavícula, un masaje de espalda o una pausa.',
+'Acabad el reto eligiendo juntos una prenda que se queda puesta y una zona para un beso.'
+];
 
 let names = ['Jugador 1','Jugador 2'];
 let sexes = ['Mujer','Hombre'];
 let turn = 0;
-let angle = 0;
-let busy = false;
 let last = -1;
+let rolling = false;
 
-function paintWheel() {
-  const canvas = $('wheel');
-  const ctx = canvas.getContext('2d');
-  const count = 10;
-  const colors = ['#b91861','#45172f'];
-
-  ctx.clearRect(0,0,600,600);
-  ctx.save();
-  ctx.translate(300,300);
-  ctx.rotate(angle);
-
-  for(let i=0;i<count;i++) {
-    const start = -Math.PI/2 + i*Math.PI*2/count;
-    const end = start + Math.PI*2/count;
-
-    ctx.beginPath();
-    ctx.moveTo(0,0);
-    ctx.arc(0,0,275,start,end);
-    ctx.closePath();
-    ctx.fillStyle = colors[i%2];
-    ctx.fill();
-    ctx.strokeStyle = '#ffc1d9';
-    ctx.lineWidth = 4;
-    ctx.stroke();
-
-    ctx.save();
-    ctx.rotate(start + Math.PI/count);
-    ctx.fillStyle = 'white';
-    ctx.font = 'bold 23px sans-serif';
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('RETO '+(i+1),250,0);
-    ctx.restore();
-  }
-
-  ctx.beginPath();
-  ctx.arc(0,0,58,0,Math.PI*2);
-  ctx.fillStyle = '#ffbd70';
-  ctx.fill();
-  ctx.fillStyle = '#391327';
-  ctx.font = 'bold 24px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('HOT',0,0);
-  ctx.restore();
-}
-
-function showTurn() {
+function showTurn(){
   $('turn').textContent = names[turn]+' · '+sexes[turn];
 }
 
-function newTask() {
-  let index;
-
+function newTask(){
+  let i;
   do {
-    index = Math.floor(Math.random()*tasks.length);
-  } while(tasks.length > 1 && index === last);
-
-  last = index;
-  $('result').textContent = tasks[index];
-  $('resultTag').textContent = 'RETO PARA '+names[turn].toUpperCase();
+    i = Math.floor(Math.random()*tasks.length);
+  } while(tasks.length>1 && i===last);
+  last=i;
+  $('challenge').textContent=tasks[i];
+  $('tag').textContent='RETO PARA '+names[turn].toUpperCase();
 }
 
-function spinWheel() {
-  if(busy) return;
+function rollDice(){
+  if(rolling)return;
+  rolling=true;
+  $('roll').disabled=true;
+  $('challenge').textContent='Los dados están rodando…';
+  let ticks=0;
 
-  busy = true;
-  $('spin').disabled = true;
+  const animation=setInterval(()=>{
+    $('dieA').textContent='🎲 '+(1+Math.floor(Math.random()*6));
+    $('dieB').textContent='🎲 '+(1+Math.floor(Math.random()*6));
 
-  const start = angle;
-  const end = start + Math.PI*2*(5+Math.random()*3);
-  const beginning = performance.now();
+    if(++ticks>=12){
+      clearInterval(animation);
+      const a=1+Math.floor(Math.random()*6);
+      const b=1+Math.floor(Math.random()*6);
+      $('dieA').textContent='🎲 '+a;
+      $('dieB').textContent='🎲 '+b;
+      $('roll').disabled=false;
+      rolling=false;
 
-  function animate(now) {
-    const progress = Math.min(1,(now-beginning)/2300);
-    const eased = 1-Math.pow(1-progress,4);
-
-    angle = start+(end-start)*eased;
-    paintWheel();
-
-    if(progress < 1) {
-      requestAnimationFrame(animate);
-    } else {
-      busy = false;
-      $('spin').disabled = false;
-      newTask();
+      if(a===b){
+        $('tag').textContent='EMPATE';
+        $('challenge').textContent='¡Empate! Nadie recibe reto. Volved a tirar.';
+      }else{
+        turn=a<b?0:1;
+        showTurn();
+        $('tag').textContent='RETO PARA '+names[turn].toUpperCase();
+        newTask();
+      }
     }
-  }
-
-  requestAnimationFrame(animate);
+  },90);
 }
 
-$('start').addEventListener('click',() => {
-  names = [
-    $('nameA').value.trim() || 'Jugador 1',
-    $('nameB').value.trim() || 'Jugador 2'
+$('start').addEventListener('click',()=>{
+  names=[
+    $('nameA').value.trim()||'Jugador 1',
+    $('nameB').value.trim()||'Jugador 2'
   ];
-
-  sexes = [$('sexA').value,$('sexB').value];
-  turn = 0;
-
+  sexes=[$('sexA').value,$('sexB').value];
+  turn=0;
   showTurn();
-  $('setup').hidden = true;
-  $('game').hidden = false;
-  paintWheel();
+  $('labelA').textContent=names[0];
+  $('labelB').textContent=names[1];
+  $('setup').hidden=true;
+  $('play').hidden=false;
 });
 
-$('spin').addEventListener('click',spinWheel);
+$('roll').addEventListener('click',rollDice);
+$('pass').addEventListener('click',newTask);
 
-$('pass').addEventListener('click',() => {
-  newTask();
+$('next').addEventListener('click',()=>{
+  $('dieA').textContent='🎲 —';
+  $('dieB').textContent='🎲 —';
+  $('challenge').textContent='Volved a tirar los dos dados.';
+  $('tag').textContent='EL NÚMERO MÁS BAJO RECIBE EL RETO';
 });
 
-$('next').addEventListener('click',() => {
-  turn = 1-turn;
-  showTurn();
-  $('result').textContent = 'Gira la ruleta para descubrir el siguiente reto.';
-  $('resultTag').textContent = 'TURNO DE '+names[turn].toUpperCase();
-});
-
-$('restart').addEventListener('click',() => {
-  $('game').hidden = true;
-  $('setup').hidden = false;
+$('restart').addEventListener('click',()=>{
+  $('play').hidden=true;
+  $('setup').hidden=false;
+  last=-1;
 });
 </script>
 </body>
